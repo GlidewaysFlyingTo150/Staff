@@ -1,0 +1,149 @@
+/* Login screen — framed like an airport staff check-in kiosk */
+
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  gap: 28px;
+}
+
+.login-topline {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.login-wrap {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Boarding-pass shaped card: notches cut into the sides + a dashed stub line */
+.pass-card {
+  position: relative;
+  background: var(--gw-white);
+  border-radius: var(--gw-radius);
+  box-shadow: var(--gw-shadow);
+  padding: 34px 30px 28px;
+  overflow: visible;
+}
+
+.pass-card::before,
+.pass-card::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  background: var(--gw-mint);
+  border-radius: 50%;
+  top: 168px;
+}
+.pass-card::before { left: -11px; }
+.pass-card::after { right: -11px; }
+
+.pass-stub-line {
+  border-top: 2px dashed var(--gw-border);
+  margin: 20px 0;
+  position: relative;
+}
+
+.pass-heading {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.3rem;
+  margin: 0 0 4px;
+}
+
+.pass-sub {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--gw-slate);
+  text-transform: uppercase;
+  margin: 0 0 22px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.field-group label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gw-slate);
+}
+
+.field-group input {
+  font-family: var(--font-body);
+  font-size: 0.98rem;
+  padding: 11px 13px;
+  border-radius: 8px;
+  border: 1.5px solid var(--gw-border);
+  background: var(--gw-mint);
+  color: var(--gw-charcoal);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.field-group input:focus {
+  border-color: var(--gw-sky-deep);
+  background: var(--gw-white);
+  outline: none;
+}
+
+.submit-btn {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  padding: 13px 16px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--gw-white);
+  background: var(--gw-green);
+  transition: background 0.15s ease, transform 0.1s ease;
+  letter-spacing: 0.01em;
+}
+
+.submit-btn:hover { background: var(--gw-green-deep); }
+.submit-btn:active { transform: scale(0.99); }
+
+.submit-btn:disabled {
+  background: var(--gw-slate);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.pass-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--gw-slate);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.login-note {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--gw-slate);
+  max-width: 380px;
+}
+
+@media (max-width: 480px) {
+  .pass-card { padding: 28px 22px 22px; }
+}

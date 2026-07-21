@@ -1,0 +1,302 @@
+/* Portal shell — terminal directory layout */
+
+.portal-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+
+/* ---- Sidebar ------------------------------------------------------------ */
+
+.sidebar {
+  background: var(--gw-charcoal);
+  color: var(--gw-mint);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.sidebar .gw-mark { color: var(--gw-white); }
+.sidebar .gw-mark .callsign {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.12);
+  color: var(--gw-mint);
+}
+
+.gate-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(244,255,244,0.45);
+  padding: 0 10px;
+}
+
+.tab-nav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tab-nav button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: none;
+  color: rgba(244,255,244,0.75);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.92rem;
+  padding: 11px 10px;
+  border-radius: 8px;
+  text-align: left;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tab-nav button:hover {
+  background: rgba(255,255,255,0.06);
+  color: var(--gw-white);
+}
+
+.tab-nav button.active {
+  background: var(--gw-green);
+  color: var(--gw-charcoal);
+  font-weight: 600;
+}
+
+.tab-nav .gate-code {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  opacity: 0.8;
+  margin-left: auto;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.signout-btn {
+  background: none;
+  border: 1.5px solid rgba(255,255,255,0.16);
+  color: rgba(244,255,244,0.8);
+  border-radius: 8px;
+  padding: 9px 10px;
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.signout-btn:hover {
+  border-color: var(--gw-sky);
+  color: var(--gw-white);
+}
+
+/* ---- Main area ----------------------------------------------------------- */
+
+.main-area {
+  padding: 28px 40px 60px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--gw-slate);
+}
+
+.topbar-right #portal-clock {
+  border: 1px solid var(--gw-border);
+  background: var(--gw-white);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.panel-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.6rem;
+  margin: 0 0 4px;
+}
+
+.panel-sub {
+  color: var(--gw-slate);
+  margin: 0 0 26px;
+  font-size: 0.95rem;
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: panel-in 0.25s ease both; }
+
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- Documents tab -------------------------------------------------------- */
+
+.doc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.doc-card {
+  background: var(--gw-white);
+  border: 1px solid var(--gw-border);
+  border-radius: var(--gw-radius);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--gw-charcoal);
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+.doc-card:hover {
+  border-color: var(--gw-sky);
+  transform: translateY(-2px);
+}
+
+.doc-card .doc-tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gw-sky-deep);
+}
+
+.doc-card h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+}
+
+.doc-card p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--gw-slate);
+}
+
+/* ---- Updates tab ----------------------------------------------------------- */
+
+.update-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid var(--gw-border);
+}
+
+.update-item {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 20px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--gw-border);
+}
+
+.update-date {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--gw-slate);
+  padding-top: 2px;
+}
+
+.update-item h3 {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.update-item p {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--gw-charcoal);
+  line-height: 1.5;
+}
+
+.update-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--gw-mint);
+  color: var(--gw-green-deep);
+  border-radius: 999px;
+  padding: 3px 9px;
+  margin-bottom: 8px;
+}
+
+/* ---- Contact tab ------------------------------------------------------------ */
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.contact-card {
+  background: var(--gw-white);
+  border: 1px solid var(--gw-border);
+  border-radius: var(--gw-radius);
+  padding: 18px;
+}
+
+.contact-card .role {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gw-sky-deep);
+}
+
+.contact-card h3 {
+  margin: 6px 0 8px;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.contact-card a {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--gw-slate);
+  text-decoration: none;
+  margin-bottom: 3px;
+}
+
+.contact-card a:hover { color: var(--gw-sky-deep); }
+
+@media (max-width: 780px) {
+  .portal-shell { grid-template-columns: 1fr; }
+  .sidebar {
+    flex-direction: row;
+    align-items: center;
+    overflow-x: auto;
+    gap: 16px;
+  }
+  .sidebar-footer { margin-top: 0; flex-direction: row; }
+  .gate-label { display: none; }
+  .tab-nav { flex-direction: row; }
+  .main-area { padding: 22px 18px 50px; }
+  .update-item { grid-template-columns: 1fr; gap: 6px; }
+}

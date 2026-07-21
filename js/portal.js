@@ -4,7 +4,6 @@
 
 const auth = firebase.auth();
 
-// Must match USERNAME_DOMAIN in js/auth.js.
 const USERNAME_DOMAIN = "glideways-staff.internal";
 
 function emailToUsername(email) {

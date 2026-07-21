@@ -4,13 +4,6 @@
 
 const auth = firebase.auth();
 
-// Firebase's email/password auth requires an email-shaped identifier
-// internally, but staff should only ever see and type a plain username.
-// This turns "jsmith" into "jsmith@glideways-staff.internal" before it's
-// sent to Firebase. That domain is never emailed anywhere — it's just a
-// wrapper so usernames can be used instead of real addresses. It must
-// match USERNAME_DOMAIN in js/portal.js and whatever you use when
-// creating staff accounts in the Firebase console.
 const USERNAME_DOMAIN = "glideways-staff.internal";
 
 function usernameToEmail(username) {

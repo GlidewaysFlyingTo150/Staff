@@ -12,12 +12,12 @@
 // ---------------------------------------------------------------------------
 
 const firebaseConfig = {
-  apiKey: "REPLACE_WITH_YOUR_API_KEY",
-  authDomain: "REPLACE_WITH_YOUR_PROJECT.firebaseapp.com",
-  projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
-  storageBucket: "REPLACE_WITH_YOUR_PROJECT.appspot.com",
-  messagingSenderId: "REPLACE_WITH_YOUR_SENDER_ID",
-  appId: "REPLACE_WITH_YOUR_APP_ID"
+  apiKey: "AIzaSyBzJC1YcFRundUm07eS9RhnXeh2GOczqeM",
+  authDomain: "glideways-staff-portal.firebaseapp.com",
+  projectId: "glideways-staff-portal",
+  storageBucket: "glideways-staff-portal.firebasestorage.app",
+  messagingSenderId: "1058047341460",
+  appId: "1:1058047341460:web:44953a3bf7f8aa0d715581"
 };
 
 firebase.initializeApp(firebaseConfig);

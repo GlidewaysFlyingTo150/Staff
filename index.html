@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Glideways Staff Portal — Sign In</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+<div class="login-screen">
+
+  <div class="login-topline">
+    <span class="gw-mark">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13 1L15.5 9.5L24 12L15.5 14L13 22.5L10.5 14L2 12L10.5 9.5L13 1Z" fill="#2ECC71"/>
+        <circle cx="13" cy="12" r="4.2" fill="#3498DB"/>
+      </svg>
+      Glideways
+    </span>
+    <span class="callsign">GWY · STAFF</span>
+  </div>
+
+  <div class="login-wrap">
+
+    <!-- Signature element: split-flap style status board -->
+    <div class="board" id="board" aria-hidden="true">
+      <div class="board-row"><span class="flap" style="animation-delay:0s">PORTAL</span><span class="flap code" style="animation-delay:.05s">GWY-OPS</span><span class="flap status ok" style="animation-delay:.1s">ONLINE</span></div>
+      <div class="board-row"><span class="flap" style="animation-delay:.15s">ACCESS</span><span class="flap code" style="animation-delay:.2s">STAFF ONLY</span><span class="flap status pending" style="animation-delay:.25s">AUTH REQ</span></div>
+    </div>
+
+    <div class="pass-card">
+      <p class="pass-heading">Staff sign in</p>
+      <p class="pass-sub">Boarding requires crew credentials</p>
+
+      <form id="login-form" novalidate>
+        <div class="field-group">
+          <label for="email">Username / email</label>
+          <input type="email" id="email" name="email" autocomplete="username" required>
+        </div>
+        <div class="field-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" autocomplete="current-password" required>
+        </div>
+
+        <p class="error-text" id="error-text" role="alert"></p>
+
+        <button type="submit" class="submit-btn" id="submit-btn">Sign in</button>
+      </form>
+
+      <div class="pass-stub-line"></div>
+
+      <div class="pass-footer">
+        <span>Glideways Group</span>
+        <span id="clock">--:--Z</span>
+      </div>
+    </div>
+
+    <p class="login-note">Access is limited to Glideways staff. Contact an administrator if you need an account or have trouble signing in.</p>
+
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

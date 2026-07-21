@@ -4,6 +4,19 @@
 
 const auth = firebase.auth();
 
+// Firebase's email/password auth requires an email-shaped identifier
+// internally, but staff should only ever see and type a plain username.
+// This turns "jsmith" into "jsmith@glideways-staff.internal" before it's
+// sent to Firebase. That domain is never emailed anywhere — it's just a
+// wrapper so usernames can be used instead of real addresses. It must
+// match USERNAME_DOMAIN in js/portal.js and whatever you use when
+// creating staff accounts in the Firebase console.
+const USERNAME_DOMAIN = "glideways-staff.internal";
+
+function usernameToEmail(username) {
+  return `${username.trim().toLowerCase()}@${USERNAME_DOMAIN}`;
+}
+
 // If already signed in, skip straight to the portal.
 auth.onAuthStateChanged((user) => {
   if (user) window.location.href = "portal.html";
@@ -16,11 +29,11 @@ const submitBtn = document.getElementById("submit-btn");
 function friendlyError(code) {
   switch (code) {
     case "auth/invalid-email":
-      return "That email address doesn't look right.";
+      return "That username contains characters that aren't allowed.";
     case "auth/user-not-found":
     case "auth/invalid-credential":
     case "auth/wrong-password":
-      return "Incorrect email or password.";
+      return "Incorrect username or password.";
     case "auth/too-many-requests":
       return "Too many attempts. Please wait a moment and try again.";
     case "auth/network-request-failed":
@@ -34,13 +47,13 @@ form.addEventListener("submit", (e) => {
   e.preventDefault();
   errorText.textContent = "";
 
-  const email = document.getElementById("email").value.trim();
+  const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
 
   submitBtn.disabled = true;
   submitBtn.textContent = "Signing in…";
 
-  auth.signInWithEmailAndPassword(email, password)
+  auth.signInWithEmailAndPassword(usernameToEmail(username), password)
     .then(() => {
       window.location.href = "portal.html";
     })

@@ -4,13 +4,22 @@
 
 const auth = firebase.auth();
 
+// Must match USERNAME_DOMAIN in js/auth.js.
+const USERNAME_DOMAIN = "glideways-staff.internal";
+
+function emailToUsername(email) {
+  return email.endsWith(`@${USERNAME_DOMAIN}`)
+    ? email.slice(0, -1 * (USERNAME_DOMAIN.length + 1))
+    : email;
+}
+
 // Auth guard: bounce back to login if not signed in.
 auth.onAuthStateChanged((user) => {
   if (!user) {
     window.location.href = "index.html";
   } else {
     const label = document.getElementById("user-email");
-    if (label) label.textContent = user.email;
+    if (label) label.textContent = emailToUsername(user.email);
   }
 });
 

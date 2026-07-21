@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Glideways Staff Portal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/portal.css">
+</head>
+<body>
+
+<div class="portal-shell">
+
+  <aside class="sidebar">
+    <span class="gw-mark">
+      <svg width="24" height="24" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13 1L15.5 9.5L24 12L15.5 14L13 22.5L10.5 14L2 12L10.5 9.5L13 1Z" fill="#2ECC71"/>
+        <circle cx="13" cy="12" r="4.2" fill="#3498DB"/>
+      </svg>
+      Glideways
+    </span>
+
+    <div>
+      <p class="gate-label">Staff directory</p>
+      <ul class="tab-nav" role="tablist">
+        <li><button class="tab-btn active" data-tab="documents" role="tab" aria-selected="true">Documents <span class="gate-code">GATE A</span></button></li>
+        <li><button class="tab-btn" data-tab="updates" role="tab" aria-selected="false">Updates <span class="gate-code">GATE B</span></button></li>
+        <li><button class="tab-btn" data-tab="contact" role="tab" aria-selected="false">Contact <span class="gate-code">GATE C</span></button></li>
+      </ul>
+    </div>
+
+    <div class="sidebar-footer">
+      <span class="gate-label" id="user-email">Signed in</span>
+      <button class="signout-btn" id="signout-btn">Sign out</button>
+    </div>
+  </aside>
+
+  <main class="main-area">
+    <div class="topbar">
+      <span class="callsign">GWY · STAFF PORTAL</span>
+      <div class="topbar-right">
+        <span id="portal-clock">--:--Z</span>
+      </div>
+    </div>
+
+    <!-- ============================= DOCUMENTS ============================= -->
+    <section class="tab-panel active" id="panel-documents" role="tabpanel">
+      <h1 class="panel-title">Documents</h1>
+      <p class="panel-sub">Reference material and SOPs for Glideways staff. Replace these placeholder entries with real links to your docs.</p>
+
+      <div class="doc-grid">
+        <a class="doc-card" href="#" target="_blank" rel="noopener">
+          <span class="doc-tag">Operations</span>
+          <h3>Flight Ops Handbook</h3>
+          <p>Standard procedures for hosting and crewing Glideways flights.</p>
+        </a>
+        <a class="doc-card" href="#" target="_blank" rel="noopener">
+          <span class="doc-tag">Conduct</span>
+          <h3>Staff Code of Conduct</h3>
+          <p>Expectations for staff behavior in-game and on Discord.</p>
+        </a>
+        <a class="doc-card" href="#" target="_blank" rel="noopener">
+          <span class="doc-tag">Training</span>
+          <h3>New Staff Onboarding Guide</h3>
+          <p>Step-by-step setup for newly promoted staff members.</p>
+        </a>
+        <a class="doc-card" href="#" target="_blank" rel="noopener">
+          <span class="doc-tag">Reference</span>
+          <h3>Airport &amp; Route Map</h3>
+          <p>Current list of served airports and active route pairs.</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- ============================== UPDATES =============================== -->
+    <section class="tab-panel" id="panel-updates" role="tabpanel">
+      <h1 class="panel-title">Updates</h1>
+      <p class="panel-sub">Announcements for staff. Replace these placeholder posts with real updates.</p>
+
+      <div class="update-list">
+        <article class="update-item">
+          <span class="update-date">JUL 2026</span>
+          <div>
+            <span class="update-tag">Release</span>
+            <h3>Example update title</h3>
+            <p>Short description of what changed and what staff need to know or do about it.</p>
+          </div>
+        </article>
+        <article class="update-item">
+          <span class="update-date">JUN 2026</span>
+          <div>
+            <span class="update-tag">Notice</span>
+            <h3>Another example update</h3>
+            <p>Add real announcements here — new routes, policy changes, event schedules, and so on.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- =============================== CONTACT ================================ -->
+    <section class="tab-panel" id="panel-contact" role="tabpanel">
+      <h1 class="panel-title">Contact</h1>
+      <p class="panel-sub">Who to reach for what. Replace these placeholder entries with your real staff contacts.</p>
+
+      <div class="contact-grid">
+        <div class="contact-card">
+          <span class="role">Founder</span>
+          <h3>Name here</h3>
+          <a href="#">Discord: username</a>
+          <a href="#">Email address</a>
+        </div>
+        <div class="contact-card">
+          <span class="role">Operations Manager</span>
+          <h3>Name here</h3>
+          <a href="#">Discord: username</a>
+          <a href="#">Email address</a>
+        </div>
+        <div class="contact-card">
+          <span class="role">Support</span>
+          <h3>General staff questions</h3>
+          <a href="#">Discord server link</a>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/portal.js"></script>
+</body>
+</html>

@@ -2,9 +2,7 @@
 // Glideways Staff Portal — portal logic
 // ---------------------------------------------------------------------------
 
-const auth = firebase.auth();
 
-// Auth guard: bounce back to login if not signed in.
 
 // ---- Tabs -------------------------------------------------------------
 

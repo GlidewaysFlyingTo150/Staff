@@ -422,6 +422,23 @@
   color: var(--gw-slate) !important;
 }
 
+.delete-announcement-btn {
+  background: none;
+  border: 1px solid var(--gw-border);
+  color: var(--gw-slate);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-family: var(--font-body);
+  margin-top: 8px;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.delete-announcement-btn:hover {
+  border-color: #C0392B;
+  color: #C0392B;
+}
+
 /* ---- New announcement modal ------------------------------------------------ */
 
 .modal-backdrop {

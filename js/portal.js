@@ -18,86 +18,6 @@ let currentUser = null;
 let currentUsername = "";
 let canPost = false;
 
-// ---- Auth guard + load this staff member's role ----------------------------
-
-auth.onAuthStateChanged((user) => {
-  if (!user) {
-    window.location.href = "index.html";
-    return;
-  }
-
-  currentUser = user;
-  currentUsername = emailToUsername(user.email);
-
-  const label = document.getElementById("user-email");
-  if (label) label.textContent = currentUsername;
-
-  const greeting = document.getElementById("home-greeting");
-  if (greeting) greeting.textContent = `Welcome, ${currentUsername}`;
-
-  // Look up this user's role/posting permission from Firestore.
-  // See README.md for how to create this "staff" document for each user.
-  db.collection("staff").doc(user.uid).get()
-    .then((doc) => {
-      const roleBadge = document.getElementById("role-badge");
-      if (doc.exists) {
-        const data = doc.data();
-        canPost = data.canPost === true;
-        if (roleBadge && data.role) {
-          roleBadge.textContent = data.role;
-          roleBadge.hidden = false;
-        }
-      }
-      const newBtn = document.getElementById("new-announcement-btn");
-      if (newBtn) newBtn.hidden = !canPost;
-    })
-    .catch((err) => {
-      console.error("Couldn't load staff role:", err);
-    });
-
-  loadAnnouncements();
-});
-
-document.getElementById("signout-btn").addEventListener("click", () => {
-  auth.signOut().then(() => {
-    window.location.href = "index.html";
-  });
-});
-
-// ---- Tabs -------------------------------------------------------------
-
-const tabButtons = document.querySelectorAll(".tab-btn");
-const panels = document.querySelectorAll(".tab-panel");
-
-function activateTab(name) {
-  tabButtons.forEach((btn) => {
-    const isActive = btn.dataset.tab === name;
-    btn.classList.toggle("active", isActive);
-    btn.setAttribute("aria-selected", String(isActive));
-  });
-  panels.forEach((panel) => {
-    panel.classList.toggle("active", panel.id === `panel-${name}`);
-  });
-  window.location.hash = name;
-
-  if (name === "updates") markUpdatesSeen();
-}
-
-tabButtons.forEach((btn) => {
-  btn.addEventListener("click", () => activateTab(btn.dataset.tab));
-});
-
-// Home tiles also switch tabs.
-document.querySelectorAll("[data-goto]").forEach((btn) => {
-  btn.addEventListener("click", () => activateTab(btn.dataset.goto));
-});
-
-// Deep-link support: portal.html#updates opens straight to that tab.
-const initialTab = window.location.hash.replace("#", "");
-if (["home", "documents", "updates", "contact"].includes(initialTab)) {
-  activateTab(initialTab);
-}
-
 // ---- Documents (rendered from js/documents-data.js) ------------------------
 
 const docGrid = document.getElementById("doc-grid");
@@ -237,6 +157,85 @@ if (announcementForm) {
         postBtn.textContent = "Post";
       });
   });
+}
+
+// ---- Auth guard + load this staff member's role ----------------------------
+
+auth.onAuthStateChanged((user) => {
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  currentUser = user;
+  currentUsername = emailToUsername(user.email);
+
+  const label = document.getElementById("user-email");
+  if (label) label.textContent = currentUsername;
+
+  const greeting = document.getElementById("home-greeting");
+  if (greeting) greeting.textContent = `Welcome, ${currentUsername}`;
+
+  // Look up this user's role/posting permission from Firestore.
+  // See README.md for how to create this "staff" document for each user.
+  db.collection("staff").doc(user.uid).get()
+    .then((doc) => {
+      const roleBadge = document.getElementById("role-badge");
+      if (doc.exists) {
+        const data = doc.data();
+        canPost = data.canPost === true;
+        if (roleBadge && data.role) {
+          roleBadge.textContent = data.role;
+          roleBadge.hidden = false;
+        }
+      }
+      if (newBtn) newBtn.hidden = !canPost;
+    })
+    .catch((err) => {
+      console.error("Couldn't load staff role:", err);
+    });
+
+  loadAnnouncements();
+});
+
+document.getElementById("signout-btn").addEventListener("click", () => {
+  auth.signOut().then(() => {
+    window.location.href = "index.html";
+  });
+});
+
+// ---- Tabs -------------------------------------------------------------
+
+const tabButtons = document.querySelectorAll(".tab-btn");
+const panels = document.querySelectorAll(".tab-panel");
+
+function activateTab(name) {
+  tabButtons.forEach((btn) => {
+    const isActive = btn.dataset.tab === name;
+    btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-selected", String(isActive));
+  });
+  panels.forEach((panel) => {
+    panel.classList.toggle("active", panel.id === `panel-${name}`);
+  });
+  window.location.hash = name;
+
+  if (name === "updates") markUpdatesSeen();
+}
+
+tabButtons.forEach((btn) => {
+  btn.addEventListener("click", () => activateTab(btn.dataset.tab));
+});
+
+// Home tiles also switch tabs.
+document.querySelectorAll("[data-goto]").forEach((btn) => {
+  btn.addEventListener("click", () => activateTab(btn.dataset.goto));
+});
+
+// Deep-link support: portal.html#updates opens straight to that tab.
+const initialTab = window.location.hash.replace("#", "");
+if (["home", "documents", "updates", "contact"].includes(initialTab)) {
+  activateTab(initialTab);
 }
 
 // ---- Clock --------------------------------------------------------------

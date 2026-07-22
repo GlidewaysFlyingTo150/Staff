@@ -197,11 +197,11 @@ const announcementForm = document.getElementById("announcement-form");
 const announcementError = document.getElementById("announcement-error");
 const postBtn = document.getElementById("post-announcement-btn");
 
-if (newBtn) newBtn.addEventListener("click", () => { modal.hidden = false; });
-if (cancelBtn) cancelBtn.addEventListener("click", () => { modal.hidden = true; });
+if (newBtn) newBtn.addEventListener("click", () => { modal.classList.add("is-open"); });
+if (cancelBtn) cancelBtn.addEventListener("click", () => { modal.classList.remove("is-open"); });
 if (modal) {
   modal.addEventListener("click", (e) => {
-    if (e.target === modal) modal.hidden = true;
+    if (e.target === modal) modal.classList.remove("is-open");
   });
 }
 
@@ -226,7 +226,7 @@ if (announcementForm) {
     })
       .then(() => {
         announcementForm.reset();
-        modal.hidden = true;
+        modal.classList.remove("is-open");
       })
       .catch((err) => {
         console.error(err);

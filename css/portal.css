@@ -425,14 +425,18 @@
 /* ---- New announcement modal ------------------------------------------------ */
 
 .modal-backdrop {
+  display: none;
   position: fixed;
   inset: 0;
   background: rgba(26, 26, 26, 0.45);
-  display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
   z-index: 50;
+}
+
+.modal-backdrop.is-open {
+  display: flex;
 }
 
 .modal-card {

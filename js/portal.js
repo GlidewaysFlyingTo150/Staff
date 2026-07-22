@@ -52,6 +52,8 @@ function timeAgoLabel(date) {
   return date.toLocaleDateString(undefined, { month: "short", year: "numeric" });
 }
 
+let latestAnnouncements = [];
+
 function renderAnnouncement(a) {
   const date = a.createdAt && a.createdAt.toDate ? a.createdAt.toDate() : null;
   return `
@@ -62,9 +64,37 @@ function renderAnnouncement(a) {
         <h3>${a.title}</h3>
         <p>${a.body}</p>
         ${a.authorUsername ? `<p class="update-author">— ${a.authorUsername}</p>` : ""}
+        ${canPost ? `<button class="delete-announcement-btn" data-id="${a.id}">Delete</button>` : ""}
       </div>
     </article>
   `;
+}
+
+function renderAnnouncementLists() {
+  if (latestAnnouncements.length === 0) {
+    const emptyMsg = '<p class="empty-state">No updates yet.</p>';
+    if (updateList) updateList.innerHTML = emptyMsg;
+    if (homePreview) homePreview.innerHTML = emptyMsg;
+    return;
+  }
+  if (updateList) updateList.innerHTML = latestAnnouncements.map(renderAnnouncement).join("");
+  if (homePreview) homePreview.innerHTML = latestAnnouncements.slice(0, 2).map(renderAnnouncement).join("");
+}
+
+if (updateList) {
+  updateList.addEventListener("click", (e) => {
+    const btn = e.target.closest(".delete-announcement-btn");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (!confirm("Delete this announcement? This can't be undone.")) return;
+    btn.disabled = true;
+    db.collection("announcements").doc(id).delete()
+      .catch((err) => {
+        console.error("Couldn't delete announcement:", err);
+        alert("Couldn't delete — check your Firestore security rules.");
+        btn.disabled = false;
+      });
+  });
 }
 
 function loadAnnouncements() {
@@ -72,18 +102,8 @@ function loadAnnouncements() {
     .orderBy("createdAt", "desc")
     .limit(30)
     .onSnapshot((snapshot) => {
-      if (snapshot.empty) {
-        const emptyMsg = '<p class="empty-state">No updates yet.</p>';
-        if (updateList) updateList.innerHTML = emptyMsg;
-        if (homePreview) homePreview.innerHTML = emptyMsg;
-        return;
-      }
-
-      const items = snapshot.docs.map((d) => d.data());
-
-      if (updateList) updateList.innerHTML = items.map(renderAnnouncement).join("");
-      if (homePreview) homePreview.innerHTML = items.slice(0, 2).map(renderAnnouncement).join("");
-
+      latestAnnouncements = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      renderAnnouncementLists();
       checkForUnseenUpdates(snapshot.docs[0]);
     }, (err) => {
       console.error("Couldn't load announcements:", err);
@@ -190,6 +210,7 @@ auth.onAuthStateChanged((user) => {
         }
       }
       if (newBtn) newBtn.hidden = !canPost;
+      renderAnnouncementLists();
     })
     .catch((err) => {
       console.error("Couldn't load staff role:", err);

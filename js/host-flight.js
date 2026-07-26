@@ -128,12 +128,10 @@ function buildMessageContent(f, primaryDiscordUserId, secondaryDiscordUserId) {
     : `@everyone`;
 
   return [
-    pingLine,
-    ``,
     `**🌿| Glideways Flight ${f.flightNumber} ${f.departureAirport} -> ${f.arrivalAirport}**`,
     `-# *"Making our skies greener"*`,
-    ``,
-    `Flight ${f.flightNumber} will be departing from ${f.departureAirport} and arriving at ${f.arrivalAirport}. The flight is hosted by ${hostLine}. This flight will have announcements in English. We can't wait to see you there!`,
+    `-#`, pingline,
+    `Flight ${f.flightNumber} will be departing from ${f.departureAirport} and arriving at ${f.arrivalAirport}. The flight is hosted by ${hostLine}. We can't wait to see you there!`,
     ``,
     `**Flight Information**`,
     `*Check-in Open:* ***${f.checkInOpen}***`,

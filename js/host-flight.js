@@ -140,7 +140,7 @@ function buildMessageContent(f, primaryDiscordUserId, secondaryDiscordUserId) {
     `*Boarding Opens:* ***${f.boardingOpen}***`,
     `*Boarding Closes/Pushback:* ***${f.boardingClose}***`,
     `*Estimated Arrival Time:* ***${f.arrivalTime}***`,
-    `***Links will be shared 10 minutes before Check-In opens***`
+    `***We recommend you join 10 minutes prior to check-in.***`
   );
   return lines.join("\n");
 }

@@ -132,7 +132,7 @@ function buildMessageContent(f, primaryDiscordUserId, secondaryDiscordUserId) {
     `-# *"Making our skies greener"*`,
     `-#@everyone`,
     ``,
-    `Flight ${f.flightNumber} will be departing from ${f.departureAirport} and arriving at ${f.arrivalAirport}. The flight is hosted by ${hostLine}. This flight will have announcements in English. We can't wait to see you there!`,
+    `Flight ${f.flightNumber} will be departing from ${f.departureAirport} and arriving at ${f.arrivalAirport}. The flight is hosted by ${hostLine}. We can't wait to see you there!`,
     ``,
     `**Flight Information**`,
     `*Check-in Open:* ***${f.checkInOpen}***`,

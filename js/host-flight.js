@@ -18,6 +18,12 @@ const MIN_FLIGHT_NUMBER = 1000;
 const MAX_FLIGHT_NUMBER = 9999;
 const MAX_NUMBER_ATTEMPTS = 12;
 
+// Formula for everything downstream of check-in opening — in minutes.
+const CHECKIN_CLOSE_OFFSET_MIN = 30;   // 30 min after check-in opens
+const BOARDING_OPEN_OFFSET_MIN = 25;   // 25 min after check-in closes
+const BOARDING_CLOSE_OFFSET_MIN = 45;  // 45 min after boarding opens
+const ARRIVAL_OFFSET_MIN = 90;         // 1.5 hrs after boarding closes/pushback
+
 // ---- Populate airport dropdowns ---------------------------------------
 
 if (hostDepartureSelect && typeof GLIDEWAYS_AIRPORTS !== "undefined") {
@@ -58,12 +64,70 @@ async function findAvailableFlightNumber() {
   throw new Error("Couldn't find an available flight number — please try again.");
 }
 
-function buildEmbedDescription(f) {
+// Parses a pasted Discord timestamp like <t:1737907200:F> into its unix
+// seconds and format flag. Returns null if it doesn't look like one.
+function parseDiscordTimestamp(str) {
+  const match = String(str).trim().match(/^<t:(\d+):([tTdDfFR])>$/);
+  if (!match) return null;
+  return { unix: parseInt(match[1], 10), flag: match[2] };
+}
+
+function formatDiscordTimestamp(unix, flag) {
+  return `<t:${unix}:${flag}>`;
+}
+
+// Builds the four downstream timestamps from a single check-in-open
+// timestamp, per the fixed formula:
+//   check-in close   = +30 min after check-in open
+//   boarding open     = +25 min after check-in close
+//   boarding close    = +45 min after boarding open
+//   arrival           = +90 min after boarding close
+function computeScheduleFromCheckInOpen(parsed) {
+  const MIN = 60;
+  const checkInCloseUnix = parsed.unix + CHECKIN_CLOSE_OFFSET_MIN * MIN;
+  const boardingOpenUnix = checkInCloseUnix + BOARDING_OPEN_OFFSET_MIN * MIN;
+  const boardingCloseUnix = boardingOpenUnix + BOARDING_CLOSE_OFFSET_MIN * MIN;
+  const arrivalUnix = boardingCloseUnix + ARRIVAL_OFFSET_MIN * MIN;
+
+  return {
+    checkInOpen: formatDiscordTimestamp(parsed.unix, parsed.flag),
+    checkInClose: formatDiscordTimestamp(checkInCloseUnix, parsed.flag),
+    boardingOpen: formatDiscordTimestamp(boardingOpenUnix, parsed.flag),
+    boardingClose: formatDiscordTimestamp(boardingCloseUnix, parsed.flag),
+    arrivalTime: formatDiscordTimestamp(arrivalUnix, parsed.flag)
+  };
+}
+
+// Looks up a host's Discord user ID from their staff record, by username,
+// so the announcement can ping them. Returns null if not found — the
+// announcement still sends, just without that ping.
+async function findDiscordUserId(username) {
+  try {
+    const snapshot = await db.collection("staff")
+      .where("username", "==", username)
+      .limit(1)
+      .get();
+    if (snapshot.empty) return null;
+    const data = snapshot.docs[0].data();
+    return data.discordUserId || null;
+  } catch (err) {
+    console.error("Couldn't look up host's Discord ID:", err);
+    return null;
+  }
+}
+
+function buildMessageContent(f, hostDiscordUserId) {
   const hostLine = f.secondaryHost
     ? `${f.primaryHost} and ${f.secondaryHost}`
     : f.primaryHost;
 
+  const pingLine = hostDiscordUserId
+    ? `<@${hostDiscordUserId}> @everyone`
+    : `@everyone`;
+
   return [
+    pingLine,
+    ``,
     `**🌿| Glideways Flight ${f.flightNumber} ${f.departureAirport} -> ${f.arrivalAirport}**`,
     `-# *"Making our skies greener"*`,
     ``,
@@ -79,7 +143,7 @@ function buildEmbedDescription(f) {
   ].join("\n");
 }
 
-async function postToDiscord(f) {
+async function postToDiscord(f, hostDiscordUserId) {
   if (!DISCORD_WEBHOOK_URL || DISCORD_WEBHOOK_URL.startsWith("REPLACE_")) {
     throw new Error("Discord webhook URL isn't configured yet (js/discord-config.js).");
   }
@@ -87,10 +151,9 @@ async function postToDiscord(f) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      embeds: [{
-        description: buildEmbedDescription(f),
-        color: 3066993 // Glideways Green, #2ECC71
-      }]
+      content: buildMessageContent(f, hostDiscordUserId)
+      // No allowed_mentions restriction — @everyone and the host ping are
+      // meant to actually notify people here.
     })
   });
   if (!res.ok) throw new Error(`Discord webhook returned ${res.status}`);
@@ -114,11 +177,7 @@ if (hostForm) {
     const primaryHost = document.getElementById("host-primary").value.trim();
     const secondaryHost = document.getElementById("host-secondary").value.trim();
     const staffing = document.getElementById("host-staffing").value;
-    const checkInOpen = document.getElementById("host-checkin-open").value.trim();
-    const checkInClose = document.getElementById("host-checkin-close").value.trim();
-    const boardingOpen = document.getElementById("host-boarding-open").value.trim();
-    const boardingClose = document.getElementById("host-boarding-close").value.trim();
-    const arrivalTime = document.getElementById("host-arrival-time").value.trim();
+    const checkInOpenRaw = document.getElementById("host-checkin-open").value.trim();
     const departureAirport = hostDepartureSelect.value;
     const arrivalAirport = hostArrivalSelect.value;
     const accessCode = document.getElementById("host-access-code").value;
@@ -126,15 +185,20 @@ if (hostForm) {
     // ---- Client-side validation (fast feedback; Firestore rules are the
     // real authority and will reject anything that slips past this) ----
 
-    if (!flightDateStr || !primaryHost || !staffing || !checkInOpen || !checkInClose ||
-        !boardingOpen || !boardingClose || !arrivalTime || !departureAirport ||
-        !arrivalAirport || !accessCode) {
+    if (!flightDateStr || !primaryHost || !staffing || !checkInOpenRaw ||
+        !departureAirport || !arrivalAirport || !accessCode) {
       hostErrorText.textContent = "Please fill out every field before submitting.";
       return;
     }
 
     if (departureAirport === arrivalAirport) {
       hostErrorText.textContent = "Departure and arrival airports can't be the same.";
+      return;
+    }
+
+    const parsedCheckIn = parseDiscordTimestamp(checkInOpenRaw);
+    if (!parsedCheckIn) {
+      hostErrorText.textContent = 'Check-in opening time needs to be a pasted Discord timestamp, like <t:1737907200:F>, from sesh.fyi/timestamp.';
       return;
     }
 
@@ -158,6 +222,7 @@ if (hostForm) {
       }
 
       const routeCode = (GWY_ROUTES[departureAirport] && GWY_ROUTES[departureAirport][arrivalAirport]) || null;
+      const schedule = computeScheduleFromCheckInOpen(parsedCheckIn);
 
       const flightData = {
         flightNumber,
@@ -165,11 +230,11 @@ if (hostForm) {
         primaryHost,
         secondaryHost: secondaryHost || null,
         staffingConfirmed: staffing,
-        checkInOpen,
-        checkInClose,
-        boardingOpen,
-        boardingClose,
-        arrivalTime,
+        checkInOpen: schedule.checkInOpen,
+        checkInClose: schedule.checkInClose,
+        boardingOpen: schedule.boardingOpen,
+        boardingClose: schedule.boardingClose,
+        arrivalTime: schedule.arrivalTime,
         departureAirport,
         arrivalAirport,
         routeCode,
@@ -179,20 +244,22 @@ if (hostForm) {
       };
 
       // The Firestore security rules are what actually decide whether this
-      // is "approved" — they check canHost, required fields, the 7-day
-      // lead time, and that accessCode matches the primary host's code on
-      // file. If any of that fails, this write is rejected and nothing
-      // gets posted to Discord.
+      // is "approved" — they check canHost, that the date and check-in
+      // time are present, the 7-day lead time, and that accessCode
+      // matches the primary host's code on file. If any of that fails,
+      // this write is rejected and nothing gets posted to Discord.
       try {
         await db.collection("flights").doc(flightNumber).set(flightData);
       } catch (writeErr) {
-        console.error("Failed while saving the flight (writing to /flights) — check canHost, required fields, the 7-day lead time, and the access code:", writeErr);
+        console.error("Failed while saving the flight (writing to /flights) — check canHost, the flight date, check-in time, the 7-day lead time, and the access code:", writeErr);
         throw writeErr;
       }
 
+      const hostDiscordUserId = await findDiscordUserId(primaryHost);
+
       let webhookWarning = "";
       try {
-        await postToDiscord(flightData);
+        await postToDiscord(flightData, hostDiscordUserId);
       } catch (webhookErr) {
         console.error("Webhook post failed:", webhookErr);
         webhookWarning = `<p>⚠️ The flight was approved and saved, but the Discord announcement couldn't be sent automatically. Check js/discord-config.js and post it manually if needed.</p>`;

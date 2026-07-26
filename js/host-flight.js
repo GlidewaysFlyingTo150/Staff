@@ -149,7 +149,14 @@ if (hostForm) {
     hostSubmitBtn.textContent = "Submitting…";
 
     try {
-      const flightNumber = await findAvailableFlightNumber();
+      let flightNumber;
+      try {
+        flightNumber = await findAvailableFlightNumber();
+      } catch (readErr) {
+        console.error("Failed while checking for an available flight number (reading /flights):", readErr);
+        throw readErr;
+      }
+
       const routeCode = (GWY_ROUTES[departureAirport] && GWY_ROUTES[departureAirport][arrivalAirport]) || null;
 
       const flightData = {
@@ -176,7 +183,12 @@ if (hostForm) {
       // lead time, and that accessCode matches the primary host's code on
       // file. If any of that fails, this write is rejected and nothing
       // gets posted to Discord.
-      await db.collection("flights").doc(flightNumber).set(flightData);
+      try {
+        await db.collection("flights").doc(flightNumber).set(flightData);
+      } catch (writeErr) {
+        console.error("Failed while saving the flight (writing to /flights) — check canHost, required fields, the 7-day lead time, and the access code:", writeErr);
+        throw writeErr;
+      }
 
       let webhookWarning = "";
       try {

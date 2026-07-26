@@ -27,6 +27,7 @@
         <li><button class="tab-btn" data-tab="documents" role="tab" aria-selected="false">Documents <span class="gate-code">GATE A</span></button></li>
         <li><button class="tab-btn" data-tab="updates" role="tab" aria-selected="false">Updates <span class="gate-code">GATE B</span><span class="notify-dot" id="notify-dot" hidden></span></button></li>
         <li><button class="tab-btn" data-tab="contact" role="tab" aria-selected="false">Contact <span class="gate-code">GATE C</span></button></li>
+        <li id="host-nav-item" hidden><button class="tab-btn" data-tab="host" role="tab" aria-selected="false">Host a Flight <span class="gate-code">OPS</span></button></li>
       </ul>
     </div>
 
@@ -77,16 +78,16 @@
 
       <h2 class="home-subheading">Quick links</h2>
       <ul class="quick-links" id="quick-links">
-        <li><a href="https://discord.gg/mWBy4QvnD6">Discord server</a></li>
-        <li><a href="https://discord.gg/2mBtT4T2CE">Staff Discord server</a></li>
-        <li><a href="https://www.roblox.com/communities/34203204/Glideways#!/about">Roblox group page</a></li>
+        <li><a href="#">Discord server</a></li>
+        <li><a href="#">Roblox group page</a></li>
+        <li><a href="#">Report an issue</a></li>
       </ul>
     </section>
 
     <!-- ============================= DOCUMENTS ============================= -->
     <section class="tab-panel" id="panel-documents" role="tabpanel">
       <h1 class="panel-title">Documents</h1>
-      <p class="panel-sub">Reference material and SOPs for Glideways staff.</p>
+      <p class="panel-sub">Reference material and SOPs for Glideways staff. Edit js/documents-data.js to add or change these.</p>
 
       <div class="doc-grid" id="doc-grid"></div>
     </section>
@@ -96,7 +97,7 @@
       <div class="panel-header-row">
         <div>
           <h1 class="panel-title">Updates</h1>
-          <p class="panel-sub">All announcemtnts are posted staff server aswell as here.</p>
+          <p class="panel-sub">Announcements for staff.</p>
         </div>
         <button class="submit-btn small-btn" id="new-announcement-btn" hidden>+ New announcement</button>
       </div>
@@ -109,18 +110,20 @@
     <!-- =============================== CONTACT ================================ -->
     <section class="tab-panel" id="panel-contact" role="tabpanel">
       <h1 class="panel-title">Contact</h1>
-      <p class="panel-sub">Who to reach for what. </p>
+      <p class="panel-sub">Who to reach for what. Replace these placeholder entries with your real staff contacts.</p>
 
       <div class="contact-grid">
         <div class="contact-card">
           <span class="role">Founder</span>
           <h3>Name here</h3>
           <a href="#">Discord: username</a>
+          <a href="#">Email address</a>
         </div>
         <div class="contact-card">
           <span class="role">Operations Manager</span>
           <h3>Name here</h3>
           <a href="#">Discord: username</a>
+          <a href="#">Email address</a>
         </div>
         <div class="contact-card">
           <span class="role">Support</span>
@@ -128,6 +131,88 @@
           <a href="#">Discord server link</a>
         </div>
       </div>
+    </section>
+
+    <!-- ============================= HOST A FLIGHT ============================= -->
+    <section class="tab-panel" id="panel-host" role="tabpanel">
+      <h1 class="panel-title">Host a Flight</h1>
+      <p class="panel-sub">Submit a flight for approval. Submissions need at least one week's notice, and the access code must match the primary host on file.</p>
+
+      <form id="host-flight-form" class="host-form">
+
+        <div class="field-group">
+          <label for="host-flight-date">Flight date</label>
+          <input type="date" id="host-flight-date" required>
+        </div>
+
+        <div class="field-group">
+          <label for="host-primary">Primary host</label>
+          <input type="text" id="host-primary" required>
+        </div>
+
+        <div class="field-group">
+          <label for="host-secondary">Secondary host (if applicable)</label>
+          <input type="text" id="host-secondary">
+        </div>
+
+        <div class="field-group">
+          <label for="host-staffing">Do you have a pilot, cabin crew, ground crew, and a check-in agent?</label>
+          <p class="field-hint">An AI check-in agent may be used — contact @biagio143 to enable it.</p>
+          <select id="host-staffing" required>
+            <option value="" disabled selected>Select one</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+
+        <p class="form-note">For the fields below, generate each timestamp at <a href="https://sesh.fyi/timestamp/" target="_blank" rel="noopener">sesh.fyi/timestamp</a> — pick the "Day, Month Day, Year at Time" option (the top one) and paste the result here.</p>
+
+        <div class="field-group">
+          <label for="host-checkin-open">Check-in opening time</label>
+          <input type="text" id="host-checkin-open" placeholder="&lt;t:...:F&gt;" required>
+        </div>
+        <div class="field-group">
+          <label for="host-checkin-close">Check-in closing time</label>
+          <input type="text" id="host-checkin-close" placeholder="&lt;t:...:F&gt;" required>
+        </div>
+        <div class="field-group">
+          <label for="host-boarding-open">Boarding opening time</label>
+          <input type="text" id="host-boarding-open" placeholder="&lt;t:...:F&gt;" required>
+        </div>
+        <div class="field-group">
+          <label for="host-boarding-close">Boarding closing / pushback time</label>
+          <input type="text" id="host-boarding-close" placeholder="&lt;t:...:F&gt;" required>
+        </div>
+        <div class="field-group">
+          <label for="host-arrival-time">Arrival time</label>
+          <input type="text" id="host-arrival-time" placeholder="&lt;t:...:F&gt;" required>
+        </div>
+
+        <div class="field-group">
+          <label for="host-departure">Departure airport</label>
+          <select id="host-departure" required>
+            <option value="" disabled selected>Select departure</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="host-arrival-airport">Arrival airport</label>
+          <select id="host-arrival-airport" required>
+            <option value="" disabled selected>Select departure first</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="host-access-code">Access code</label>
+          <input type="password" id="host-access-code" autocomplete="off" required>
+        </div>
+
+        <p class="error-text" id="host-form-error" role="alert"></p>
+
+        <button type="submit" class="submit-btn" id="host-submit-btn">Submit flight</button>
+      </form>
+
+      <div class="host-result" id="host-result" hidden></div>
     </section>
   </main>
 </div>
@@ -167,7 +252,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="js/firebase-config.js"></script>
+<script src="js/discord-config.js"></script>
 <script src="js/documents-data.js"></script>
+<script src="js/airports-data.js"></script>
 <script src="js/portal.js"></script>
+<script src="js/host-flight.js"></script>
 </body>
 </html>

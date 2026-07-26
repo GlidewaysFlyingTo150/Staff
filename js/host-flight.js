@@ -116,13 +116,15 @@ async function findDiscordUserId(username) {
   }
 }
 
-function buildMessageContent(f, hostDiscordUserId) {
-  const hostLine = f.secondaryHost
-    ? `${f.primaryHost} and ${f.secondaryHost}`
-    : f.primaryHost;
+function buildMessageContent(f, primaryDiscordUserId, secondaryDiscordUserId) {
+  const primaryMention = primaryDiscordUserId ? `<@${primaryDiscordUserId}>` : f.primaryHost;
+  const secondaryMention = f.secondaryHost
+    ? (secondaryDiscordUserId ? `<@${secondaryDiscordUserId}>` : f.secondaryHost)
+    : null;
+  const hostLine = secondaryMention ? `${primaryMention} and ${secondaryMention}` : primaryMention;
 
-  const pingLine = hostDiscordUserId
-    ? `<@${hostDiscordUserId}> @everyone`
+  const pingLine = primaryDiscordUserId
+    ? `<@${primaryDiscordUserId}> @everyone`
     : `@everyone`;
 
   return [
@@ -143,7 +145,7 @@ function buildMessageContent(f, hostDiscordUserId) {
   ].join("\n");
 }
 
-async function postToDiscord(f, hostDiscordUserId) {
+async function postToDiscord(f, primaryDiscordUserId, secondaryDiscordUserId) {
   if (!DISCORD_WEBHOOK_URL || DISCORD_WEBHOOK_URL.startsWith("REPLACE_")) {
     throw new Error("Discord webhook URL isn't configured yet (js/discord-config.js).");
   }
@@ -151,7 +153,7 @@ async function postToDiscord(f, hostDiscordUserId) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      content: buildMessageContent(f, hostDiscordUserId)
+      content: buildMessageContent(f, primaryDiscordUserId, secondaryDiscordUserId)
       // No allowed_mentions restriction — @everyone and the host ping are
       // meant to actually notify people here.
     })
@@ -255,14 +257,15 @@ if (hostForm) {
         throw writeErr;
       }
 
-      const hostDiscordUserId = await findDiscordUserId(primaryHost);
+      const primaryDiscordUserId = await findDiscordUserId(primaryHost);
+      const secondaryDiscordUserId = secondaryHost ? await findDiscordUserId(secondaryHost) : null;
 
       let webhookWarning = "";
       try {
-        await postToDiscord(flightData, hostDiscordUserId);
+        await postToDiscord(flightData, primaryDiscordUserId, secondaryDiscordUserId);
       } catch (webhookErr) {
         console.error("Webhook post failed:", webhookErr);
-        webhookWarning = `<p>⚠️ The flight was approved and saved, but the Discord announcement couldn't be sent automatically. Check js/discord-config.js and post it manually if needed.</p>`;
+        webhookWarning = `<p>⚠️ The flight was approved and saved, but the Discord announcement couldn't be sent automatically. Please notify a member of the Corporate team.</p>`;
       }
 
       showResult("success", `

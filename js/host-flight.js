@@ -124,9 +124,6 @@ function buildMessageContent(f, primaryDiscordUserId, secondaryDiscordUserId) {
   const hostLine = secondaryMention ? `${primaryMention} and ${secondaryMention}` : primaryMention;
 
   const lines = [];
-  if (primaryDiscordUserId) {
-    lines.push(`<@${primaryDiscordUserId}>`, ``);
-  }
   lines.push(
     `**🌿| Glideways Flight ${f.flightNumber} ${f.departureAirport} -> ${f.arrivalAirport}**`,
     `-# *"Making our skies greener"*`,

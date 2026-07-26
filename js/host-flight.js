@@ -130,7 +130,7 @@ function buildMessageContent(f, primaryDiscordUserId, secondaryDiscordUserId) {
   lines.push(
     `**🌿| Glideways Flight ${f.flightNumber} ${f.departureAirport} -> ${f.arrivalAirport}**`,
     `-# *"Making our skies greener"*`,
-    `-#@everyone`,
+    `-# @everyone`,
     ``,
     `Flight ${f.flightNumber} will be departing from ${f.departureAirport} and arriving at ${f.arrivalAirport}. The flight is hosted by ${hostLine}. We can't wait to see you there!`,
     ``,

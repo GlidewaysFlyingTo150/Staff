@@ -17,6 +17,7 @@ function emailToUsername(email) {
 let currentUser = null;
 let currentUsername = "";
 let canPost = false;
+let canHost = false;
 
 // ---- Documents (rendered from js/documents-data.js) ------------------------
 
@@ -204,12 +205,18 @@ auth.onAuthStateChanged((user) => {
       if (doc.exists) {
         const data = doc.data();
         canPost = data.canPost === true;
+        canHost = data.canHost === true;
         if (roleBadge && data.role) {
           roleBadge.textContent = data.role;
           roleBadge.hidden = false;
         }
       }
       if (newBtn) newBtn.hidden = !canPost;
+      const hostNavItem = document.getElementById("host-nav-item");
+      if (hostNavItem) hostNavItem.hidden = !canHost;
+      if (canHost && window.location.hash.replace("#", "") === "host" && typeof activateTab === "function") {
+        activateTab("host");
+      }
       renderAnnouncementLists();
     })
     .catch((err) => {
@@ -231,6 +238,7 @@ const tabButtons = document.querySelectorAll(".tab-btn");
 const panels = document.querySelectorAll(".tab-panel");
 
 function activateTab(name) {
+  if (name === "host" && !canHost) name = "home";
   tabButtons.forEach((btn) => {
     const isActive = btn.dataset.tab === name;
     btn.classList.toggle("active", isActive);
@@ -255,7 +263,7 @@ document.querySelectorAll("[data-goto]").forEach((btn) => {
 
 // Deep-link support: portal.html#updates opens straight to that tab.
 const initialTab = window.location.hash.replace("#", "");
-if (["home", "documents", "updates", "contact"].includes(initialTab)) {
+if (["home", "documents", "updates", "contact", "host"].includes(initialTab)) {
   activateTab(initialTab);
 }
 

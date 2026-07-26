@@ -157,7 +157,6 @@
 
         <div class="field-group">
           <label for="host-staffing">Do you have a pilot, cabin crew, ground crew, and a check-in agent?</label>
-          <p class="field-hint">An AI check-in agent may be used — contact @biagio143 to enable it.</p>
           <select id="host-staffing" required>
             <option value="" disabled selected>Select one</option>
             <option value="yes">Yes</option>
@@ -165,27 +164,11 @@
           </select>
         </div>
 
-        <p class="form-note">For the fields below, generate each timestamp at <a href="https://sesh.fyi/timestamp/" target="_blank" rel="noopener">sesh.fyi/timestamp</a> — pick the "Day, Month Day, Year at Time" option (the top one) and paste the result here.</p>
+        <p class="form-note">For the field below, generate the timestamp at <a href="https://sesh.fyi/timestamp/" target="_blank" rel="noopener">sesh.fyi/timestamp</a> — pick the "Day, Month Day, Year at Time" option (the top one) and paste the result here. Check-in close, boarding, and arrival times are calculated automatically from this.</p>
 
         <div class="field-group">
           <label for="host-checkin-open">Check-in opening time</label>
           <input type="text" id="host-checkin-open" placeholder="&lt;t:...:F&gt;" required>
-        </div>
-        <div class="field-group">
-          <label for="host-checkin-close">Check-in closing time</label>
-          <input type="text" id="host-checkin-close" placeholder="&lt;t:...:F&gt;" required>
-        </div>
-        <div class="field-group">
-          <label for="host-boarding-open">Boarding opening time</label>
-          <input type="text" id="host-boarding-open" placeholder="&lt;t:...:F&gt;" required>
-        </div>
-        <div class="field-group">
-          <label for="host-boarding-close">Boarding closing / pushback time</label>
-          <input type="text" id="host-boarding-close" placeholder="&lt;t:...:F&gt;" required>
-        </div>
-        <div class="field-group">
-          <label for="host-arrival-time">Arrival time</label>
-          <input type="text" id="host-arrival-time" placeholder="&lt;t:...:F&gt;" required>
         </div>
 
         <div class="field-group">

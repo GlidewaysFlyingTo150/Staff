@@ -123,15 +123,16 @@ function buildMessageContent(f, primaryDiscordUserId, secondaryDiscordUserId) {
     : null;
   const hostLine = secondaryMention ? `${primaryMention} and ${secondaryMention}` : primaryMention;
 
-  const pingLine = primaryDiscordUserId
-    ? `<@${primaryDiscordUserId}> @everyone`
-    : `@everyone`;
-
-  return [
+  const lines = [];
+  if (primaryDiscordUserId) {
+    lines.push(`<@${primaryDiscordUserId}>`, ``);
+  }
+  lines.push(
     `**🌿| Glideways Flight ${f.flightNumber} ${f.departureAirport} -> ${f.arrivalAirport}**`,
     `-# *"Making our skies greener"*`,
-    `-#`, pingLine,
-    `Flight ${f.flightNumber} will be departing from ${f.departureAirport} and arriving at ${f.arrivalAirport}. The flight is hosted by ${hostLine}. We can't wait to see you there!`,
+    `-#@everyone`,
+    ``,
+    `Flight ${f.flightNumber} will be departing from ${f.departureAirport} and arriving at ${f.arrivalAirport}. The flight is hosted by ${hostLine}. This flight will have announcements in English. We can't wait to see you there!`,
     ``,
     `**Flight Information**`,
     `*Check-in Open:* ***${f.checkInOpen}***`,
@@ -140,7 +141,8 @@ function buildMessageContent(f, primaryDiscordUserId, secondaryDiscordUserId) {
     `*Boarding Closes/Pushback:* ***${f.boardingClose}***`,
     `*Estimated Arrival Time:* ***${f.arrivalTime}***`,
     `***Links will be shared 10 minutes before Check-In opens***`
-  ].join("\n");
+  );
+  return lines.join("\n");
 }
 
 async function postToDiscord(f, primaryDiscordUserId, secondaryDiscordUserId) {
@@ -263,7 +265,7 @@ if (hostForm) {
         await postToDiscord(flightData, primaryDiscordUserId, secondaryDiscordUserId);
       } catch (webhookErr) {
         console.error("Webhook post failed:", webhookErr);
-        webhookWarning = `<p>⚠️ The flight was approved and saved, but the Discord announcement couldn't be sent automatically. Please notify a member of the Corporate team.</p>`;
+        webhookWarning = `<p>⚠️ The flight was approved and saved, but the Discord announcement couldn't be sent automatically. Check js/discord-config.js and post it manually if needed.</p>`;
       }
 
       showResult("success", `

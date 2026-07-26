@@ -548,3 +548,80 @@
 }
 
 .doc-page-content p { margin: 0 0 14px; }
+
+/* ---- Host a Flight tab ------------------------------------------------------ */
+
+.host-form {
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+}
+
+.host-form select {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 11px 13px;
+  border-radius: 8px;
+  border: 1.5px solid var(--gw-border);
+  background: var(--gw-mint);
+  color: var(--gw-charcoal);
+  width: 100%;
+}
+
+.field-hint {
+  margin: -2px 0 6px;
+  font-size: 0.78rem;
+  color: var(--gw-slate);
+}
+
+.form-note {
+  background: var(--gw-white);
+  border: 1px solid var(--gw-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  color: var(--gw-slate);
+  margin: 4px 0 18px;
+}
+
+.form-note a { color: var(--gw-sky-deep); }
+
+.host-form .submit-btn {
+  margin-top: 6px;
+}
+
+.host-result {
+  margin-top: 22px;
+  max-width: 480px;
+  background: var(--gw-white);
+  border: 1px solid var(--gw-border);
+  border-radius: var(--gw-radius);
+  padding: 20px 22px;
+}
+
+.host-result.success {
+  border-color: var(--gw-green);
+}
+
+.host-result.failure {
+  border-color: #C0392B;
+}
+
+.host-result h3 {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+}
+
+.host-result .flight-number {
+  font-family: var(--font-mono);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--gw-green-deep);
+  letter-spacing: 0.04em;
+}
+
+.host-result p {
+  margin: 6px 0 0;
+  font-size: 0.9rem;
+  color: var(--gw-slate);
+}

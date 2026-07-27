@@ -1,9 +1,5 @@
 // ---------------------------------------------------------------------------
 // Glideways Staff Portal — Host a Flight
-//
-// Relies on globals from portal.js (currentUsername, db) and
-// airports-data.js (GLIDEWAYS_AIRPORTS, GWY_ROUTES) and
-// discord-config.js (DISCORD_WEBHOOK_URL), all loaded before this file.
 // ---------------------------------------------------------------------------
 
 const hostForm = document.getElementById("host-flight-form");
@@ -17,6 +13,7 @@ const MIN_LEAD_DAYS = 7;
 const MIN_FLIGHT_NUMBER = 1000;
 const MAX_FLIGHT_NUMBER = 9999;
 const MAX_NUMBER_ATTEMPTS = 12;
+const DETAILS_DELAY_DAYS = 2;
 
 // Formula for everything downstream of check-in opening — in minutes.
 const CHECKIN_CLOSE_OFFSET_MIN = 30;   // 30 min after check-in opens
@@ -52,9 +49,6 @@ function randomFlightNumber() {
   return Math.floor(Math.random() * (MAX_FLIGHT_NUMBER - MIN_FLIGHT_NUMBER + 1)) + MIN_FLIGHT_NUMBER;
 }
 
-// Finds a flight number not already in use by reading (not guessing) —
-// there's a small theoretical race if two people submit in the same
-// instant, but that's extremely unlikely for this scale of use.
 async function findAvailableFlightNumber() {
   for (let i = 0; i < MAX_NUMBER_ATTEMPTS; i++) {
     const candidate = String(randomFlightNumber());
@@ -64,8 +58,6 @@ async function findAvailableFlightNumber() {
   throw new Error("Couldn't find an available flight number — please try again.");
 }
 
-// Parses a pasted Discord timestamp like <t:1737907200:F> into its unix
-// seconds and format flag. Returns null if it doesn't look like one.
 function parseDiscordTimestamp(str) {
   const match = String(str).trim().match(/^<t:(\d+):([tTdDfFR])>$/);
   if (!match) return null;
@@ -98,9 +90,7 @@ function computeScheduleFromCheckInOpen(parsed) {
   };
 }
 
-// Looks up a host's Discord user ID from their staff record, by username,
-// so the announcement can ping them. Returns null if not found — the
-// announcement still sends, just without that ping.
+
 async function findDiscordUserId(username) {
   try {
     const snapshot = await db.collection("staff")
@@ -116,43 +106,40 @@ async function findDiscordUserId(username) {
   }
 }
 
-function buildMessageContent(f, primaryDiscordUserId, secondaryDiscordUserId) {
-  const primaryMention = primaryDiscordUserId ? `<@${primaryDiscordUserId}>` : f.primaryHost;
-  const secondaryMention = f.secondaryHost
-    ? (secondaryDiscordUserId ? `<@${secondaryDiscordUserId}>` : f.secondaryHost)
-    : null;
-  const hostLine = secondaryMention ? `${primaryMention} and ${secondaryMention}` : primaryMention;
 
-  const lines = [];
-  lines.push(
-    `**🌿| Glideways Flight ${f.flightNumber} ${f.departureAirport} -> ${f.arrivalAirport}**`,
-    `-# *"Making our skies greener"*`,
-    `-# @everyone`,
-    ``,
-    `Flight ${f.flightNumber} will be departing from ${f.departureAirport} and arriving at ${f.arrivalAirport}. The flight is hosted by ${hostLine}. We can't wait to see you there!`,
-    ``,
-    `**Flight Information**`,
-    `*Check-in Open:* ***${f.checkInOpen}***`,
-    `*Check In Close:* ***${f.checkInClose}***`,
-    `*Boarding Opens:* ***${f.boardingOpen}***`,
-    `*Boarding Closes/Pushback:* ***${f.boardingClose}***`,
-    `*Estimated Arrival Time:* ***${f.arrivalTime}***`,
-    `***We recommend you join 10 minutes prior to check-in.***`
-  );
-  return lines.join("\n");
+function mentionFor(name, discordUserId) {
+  return discordUserId ? `<@${discordUserId}>` : `@${name}`;
 }
 
-async function postToDiscord(f, primaryDiscordUserId, secondaryDiscordUserId) {
-  if (!DISCORD_WEBHOOK_URL || DISCORD_WEBHOOK_URL.startsWith("REPLACE_")) {
-    throw new Error("Discord webhook URL isn't configured yet (js/discord-config.js).");
+function buildNewFlightMessage(f, primaryDiscordUserId, secondaryDiscordUserId) {
+  const primaryMention = mentionFor(f.primaryHost, primaryDiscordUserId);
+  const secondaryMention = f.secondaryHost ? mentionFor(f.secondaryHost, secondaryDiscordUserId) : null;
+
+  const hostedByLine = secondaryMention ? `${primaryMention} and ${secondaryMention}` : primaryMention;
+  const signatureHosts = secondaryMention ? `${primaryMention} & ${secondaryMention}` : primaryMention;
+  const dispatcherLabel = secondaryMention ? "Flight Dispatchers" : "Flight Dispatcher";
+
+  return [
+    `# 🌿 | New Flight`,
+    `-# *"Making our skies greener."*`,
+    `-# @everyone`,
+    ``,
+    `Greetings staff,`,
+    `A flight will be hosted by ${hostedByLine} at ${f.checkInOpen}. If you would like to claim a role, please send a message with the role you would like, ex: "Captain," to ${f.primaryHost}`,
+    `***Signed,***`,
+    `***${signatureHosts}, ${dispatcherLabel}***`
+  ].join("\n");
+}
+
+async function postNewFlightMessage(f, primaryDiscordUserId, secondaryDiscordUserId) {
+  if (!NEW_FLIGHT_WEBHOOK_URL || NEW_FLIGHT_WEBHOOK_URL.startsWith("REPLACE_")) {
+    throw new Error("New Flight webhook URL isn't configured yet (js/discord-config.js).");
   }
-  const res = await fetch(DISCORD_WEBHOOK_URL, {
+  const res = await fetch(NEW_FLIGHT_WEBHOOK_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      content: buildMessageContent(f, primaryDiscordUserId, secondaryDiscordUserId)
-      // No allowed_mentions restriction — @everyone and the host ping are
-      // meant to actually notify people here.
+      content: buildNewFlightMessage(f, primaryDiscordUserId, secondaryDiscordUserId)
     })
   });
   if (!res.ok) throw new Error(`Discord webhook returned ${res.status}`);
@@ -181,8 +168,6 @@ if (hostForm) {
     const arrivalAirport = hostArrivalSelect.value;
     const accessCode = document.getElementById("host-access-code").value;
 
-    // ---- Client-side validation (fast feedback; Firestore rules are the
-    // real authority and will reject anything that slips past this) ----
 
     if (!flightDateStr || !primaryHost || !staffing || !checkInOpenRaw ||
         !departureAirport || !arrivalAirport || !accessCode) {
@@ -222,6 +207,7 @@ if (hostForm) {
 
       const routeCode = (GWY_ROUTES[departureAirport] && GWY_ROUTES[departureAirport][arrivalAirport]) || null;
       const schedule = computeScheduleFromCheckInOpen(parsedCheckIn);
+      const detailsSendAt = new Date(Date.now() + DETAILS_DELAY_DAYS * 24 * 60 * 60 * 1000);
 
       const flightData = {
         flightNumber,
@@ -239,14 +225,14 @@ if (hostForm) {
         routeCode,
         accessCode,
         submittedBy: currentUsername,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        // The scheduled GitHub Action (see scripts/send-flight-details.js)
+        // watches for detailsSendAt <= now && detailsMessageSent == false.
+        detailsSendAt: firebase.firestore.Timestamp.fromDate(detailsSendAt),
+        detailsMessageSent: false
       };
 
-      // The Firestore security rules are what actually decide whether this
-      // is "approved" — they check canHost, that the date and check-in
-      // time are present, the 7-day lead time, and that accessCode
-      // matches the primary host's code on file. If any of that fails,
-      // this write is rejected and nothing gets posted to Discord.
+
       try {
         await db.collection("flights").doc(flightNumber).set(flightData);
       } catch (writeErr) {
@@ -259,16 +245,17 @@ if (hostForm) {
 
       let webhookWarning = "";
       try {
-        await postToDiscord(flightData, primaryDiscordUserId, secondaryDiscordUserId);
+        await postNewFlightMessage(flightData, primaryDiscordUserId, secondaryDiscordUserId);
       } catch (webhookErr) {
-        console.error("Webhook post failed:", webhookErr);
-        webhookWarning = `<p>⚠️ The flight was approved and saved, but the Discord announcement couldn't be sent automatically. Check js/discord-config.js and post it manually if needed.</p>`;
+        console.error("New Flight webhook post failed:", webhookErr);
+        webhookWarning = `<p>⚠️ The flight was approved and saved, but the "New Flight" announcement couldn't be sent automatically. Check js/discord-config.js and post it manually if needed.</p>`;
       }
 
       showResult("success", `
         <h3>Flight approved</h3>
         <div class="flight-number">#${flightNumber}</div>
         <p>${departureAirport} → ${arrivalAirport}${routeCode ? ` · Route ${routeCode}` : ""}</p>
+        <p>The flight-details announcement will go out automatically in ${DETAILS_DELAY_DAYS} days.</p>
         ${webhookWarning}
       `);
       hostForm.reset();

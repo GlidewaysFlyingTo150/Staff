@@ -1,0 +1,145 @@
+// ---------------------------------------------------------------------------
+// Glideways Staff Portal — scheduled flight-details sender
+//
+// Run by the GitHub Action in .github/workflows/send-flight-details.yml on
+// a timer (not by the browser — browsers can't reliably wait 2 days). Uses
+// the Firebase Admin SDK, which authenticates with a service account and
+// bypasses Firestore security rules entirely — that's expected and fine,
+// since this only ever runs in your own GitHub Actions environment, not in
+// anyone's browser.
+//
+// What it does, each run:
+//   1. Find flights where detailsSendAt <= now and detailsMessageSent is
+//      still false.
+//   2. For each one, look up the host(s)' Discord IDs, build the detailed
+//      flight-info message, and POST it to the flight-details webhook.
+//   3. Mark that flight's detailsMessageSent as true so it's never sent
+//      twice.
+//
+// Required environment variables (set as GitHub secrets — see README):
+//   FIREBASE_SERVICE_ACCOUNT      full JSON content of a Firebase service
+//                                   account key, as a single-line string
+//   FLIGHT_DETAILS_WEBHOOK_URL     the Discord webhook for this message
+// ---------------------------------------------------------------------------
+
+const admin = require("firebase-admin");
+
+function requireEnv(name) {
+  const value = process.env[name];
+  if (!value) {
+    console.error(`Missing required environment variable: ${name}`);
+    process.exit(1);
+  }
+  return value;
+}
+
+const serviceAccountJson = requireEnv("FIREBASE_SERVICE_ACCOUNT");
+const webhookUrl = requireEnv("FLIGHT_DETAILS_WEBHOOK_URL");
+
+admin.initializeApp({
+  credential: admin.credential.cert(JSON.parse(serviceAccountJson))
+});
+const db = admin.firestore();
+
+// A real ping if we have their Discord ID, otherwise a plain "@name" (just
+// text — it won't actually notify them, only <@id> does that).
+function mentionFor(name, discordUserId) {
+  return discordUserId ? `<@${discordUserId}>` : `@${name}`;
+}
+
+async function findDiscordUserId(username) {
+  if (!username) return null;
+  const snapshot = await db.collection("staff")
+    .where("username", "==", username)
+    .limit(1)
+    .get();
+  if (snapshot.empty) return null;
+  return snapshot.docs[0].data().discordUserId || null;
+}
+
+function buildDetailsMessage(f, primaryDiscordUserId, secondaryDiscordUserId) {
+  const primaryMention = mentionFor(f.primaryHost, primaryDiscordUserId);
+  const secondaryMention = f.secondaryHost ? mentionFor(f.secondaryHost, secondaryDiscordUserId) : null;
+  const hostLine = secondaryMention ? `${primaryMention} and ${secondaryMention}` : primaryMention;
+
+  const lines = [];
+  if (primaryDiscordUserId) {
+    lines.push(`<@${primaryDiscordUserId}>`, ``);
+  }
+  lines.push(
+    `**🌿| Glideways Flight ${f.flightNumber} ${f.departureAirport} -> ${f.arrivalAirport}**`,
+    `-# *"Making our skies greener"*`,
+    `-#@everyone`,
+    ``,
+    `Flight ${f.flightNumber} will be departing from ${f.departureAirport} and arriving at ${f.arrivalAirport}. The flight is hosted by ${hostLine}. This flight will have announcements in English. We can't wait to see you there!`,
+    ``,
+    `**Flight Information**`,
+    `*Check-in Open:* ***${f.checkInOpen}***`,
+    `*Check In Close:* ***${f.checkInClose}***`,
+    `*Boarding Opens:* ***${f.boardingOpen}***`,
+    `*Boarding Closes/Pushback:* ***${f.boardingClose}***`,
+    `*Estimated Arrival Time:* ***${f.arrivalTime}***`,
+    `***Links will be shared 10 minutes before Check-In opens***`
+  );
+  return lines.join("\n");
+}
+
+async function postToDiscord(content) {
+  const res = await fetch(webhookUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content })
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`Discord webhook returned ${res.status}: ${body}`);
+  }
+}
+
+async function main() {
+  const now = admin.firestore.Timestamp.now();
+
+  const snapshot = await db.collection("flights")
+    .where("detailsMessageSent", "==", false)
+    .where("detailsSendAt", "<=", now)
+    .get();
+
+  if (snapshot.empty) {
+    console.log("No flights due for their details announcement right now.");
+    return;
+  }
+
+  console.log(`${snapshot.size} flight(s) due — sending...`);
+
+  for (const doc of snapshot.docs) {
+    const flight = doc.data();
+    try {
+      const [primaryDiscordUserId, secondaryDiscordUserId] = await Promise.all([
+        findDiscordUserId(flight.primaryHost),
+        flight.secondaryHost ? findDiscordUserId(flight.secondaryHost) : Promise.resolve(null)
+      ]);
+
+      const content = buildDetailsMessage(flight, primaryDiscordUserId, secondaryDiscordUserId);
+      await postToDiscord(content);
+
+      await doc.ref.update({
+        detailsMessageSent: true,
+        detailsSentAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+
+      console.log(`Sent details for flight #${flight.flightNumber}.`);
+    } catch (err) {
+      // One bad flight shouldn't block the rest — log and move on. It'll
+      // be retried on the next scheduled run since detailsMessageSent is
+      // still false.
+      console.error(`Failed to send details for flight #${flight.flightNumber}:`, err);
+    }
+  }
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error("Fatal error:", err);
+    process.exit(1);
+  });

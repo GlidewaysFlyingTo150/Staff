@@ -33,8 +33,34 @@ function requireEnv(name) {
   return value;
 }
 
+// Cleans up common copy/paste mistakes: surrounding quotes, and leading/
+// trailing whitespace or line breaks — any of which makes new URL() throw
+// "Invalid URL" even though the secret "looks" set.
+function cleanWebhookUrl(raw) {
+  let cleaned = raw.trim();
+  if (
+    (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
+    (cleaned.startsWith("'") && cleaned.endsWith("'"))
+  ) {
+    cleaned = cleaned.slice(1, -1).trim();
+  }
+  return cleaned;
+}
+
 const serviceAccountJson = requireEnv("FIREBASE_SERVICE_ACCOUNT");
-const webhookUrl = requireEnv("FLIGHT_DETAILS_WEBHOOK_URL");
+const webhookUrl = cleanWebhookUrl(requireEnv("FLIGHT_DETAILS_WEBHOOK_URL"));
+
+try {
+  // eslint-disable-next-line no-new
+  new URL(webhookUrl);
+} catch {
+  console.error(
+    "FLIGHT_DETAILS_WEBHOOK_URL doesn't look like a valid URL even after " +
+    "cleanup. Check the GitHub secret for stray characters, and make sure " +
+    "it's the full URL starting with https://discord.com/api/webhooks/..."
+  );
+  process.exit(1);
+}
 
 admin.initializeApp({
   credential: admin.credential.cert(JSON.parse(serviceAccountJson))

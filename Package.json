@@ -1,0 +1,12 @@
+{
+  "name": "glideways-staff-portal-scripts",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Scheduled server-side scripts for the Glideways Staff Portal (not part of the site itself).",
+  "scripts": {
+    "send-flight-details": "node scripts/send-flight-details.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}

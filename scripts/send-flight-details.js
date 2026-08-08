@@ -97,7 +97,7 @@ function buildDetailsMessage(f, primaryDiscordUserId, secondaryDiscordUserId) {
     `-# *"Making our skies greener"*`,
     `-#@everyone`,
     ``,
-    `Flight ${f.flightNumber} will be departing from ${f.departureAirport} and arriving at ${f.arrivalAirport}. The flight is hosted by ${hostLine}. This flight will have announcements in English. We can't wait to see you there!`,
+    `Flight ${f.flightNumber} will be departing from ${f.departureAirport} and arriving at ${f.arrivalAirport}. The flight is hosted by ${hostLine}. We can't wait to see you there!`,
     ``,
     `**Flight Information**`,
     `*Check-in Open:* ***${f.checkInOpen}***`,
@@ -105,7 +105,7 @@ function buildDetailsMessage(f, primaryDiscordUserId, secondaryDiscordUserId) {
     `*Boarding Opens:* ***${f.boardingOpen}***`,
     `*Boarding Closes/Pushback:* ***${f.boardingClose}***`,
     `*Estimated Arrival Time:* ***${f.arrivalTime}***`,
-    `***Links will be shared 10 minutes before Check-In opens***`
+    `***We recommend you join via our [Hub](https://www.roblox.com/share?code=723d546eee6bd14eab475c55febc3753&type=ExperienceDetails&stamp=1786233553972) 10 minutes prior to check-in***`
   );
   return lines.join("\n");
 }

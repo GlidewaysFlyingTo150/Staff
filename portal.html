@@ -57,7 +57,7 @@
         <button class="home-tile" data-goto="documents">
           <span class="doc-tag">Gate A</span>
           <h3>Documents</h3>
-          <p>Handbooks and reference material.</p>
+          <p>SOPs, handbooks, and reference material.</p>
         </button>
         <button class="home-tile" data-goto="updates">
           <span class="doc-tag">Gate B</span>
@@ -78,16 +78,16 @@
 
       <h2 class="home-subheading">Quick links</h2>
       <ul class="quick-links" id="quick-links">
-        <li><a href="#">Discord server</a>https://discord.gg/qKsPhRNWwP</li>
-        <li><a href="#">Roblox group page</a>https://www.roblox.com/communities/34203204/Glideways#!/about</li>
-        <li><a href="#">Report an issue</a>https://discord.com/channels/1456413443426095342/1456425795286470772</li>
+        <li><a href="#">Discord server</a></li>
+        <li><a href="#">Roblox group page</a></li>
+        <li><a href="#">Report an issue</a></li>
       </ul>
     </section>
 
     <!-- ============================= DOCUMENTS ============================= -->
     <section class="tab-panel" id="panel-documents" role="tabpanel">
       <h1 class="panel-title">Documents</h1>
-      <p class="panel-sub">Reference material for Glideways staff.</p>
+      <p class="panel-sub">Reference material and SOPs for Glideways staff. Edit js/documents-data.js to add or change these.</p>
 
       <div class="doc-grid" id="doc-grid"></div>
     </section>
@@ -110,13 +110,27 @@
     <!-- =============================== CONTACT ================================ -->
     <section class="tab-panel" id="panel-contact" role="tabpanel">
       <h1 class="panel-title">Contact</h1>
-      <p class="panel-sub">Who to reach for what.</p>
+      <p class="panel-sub">Who to reach for what. Replace these placeholder entries with your real staff contacts.</p>
 
       <div class="contact-grid">
         <div class="contact-card">
-          <span class="role">🛠️🚧 Under Construction 🚧🛠️</span>
-          <h3>Big things comming soon...</h3>
+          <span class="role">Founder</span>
+          <h3>Name here</h3>
+          <a href="#">Discord: username</a>
+          <a href="#">Email address</a>
         </div>
+        <div class="contact-card">
+          <span class="role">Operations Manager</span>
+          <h3>Name here</h3>
+          <a href="#">Discord: username</a>
+          <a href="#">Email address</a>
+        </div>
+        <div class="contact-card">
+          <span class="role">Support</span>
+          <h3>General staff questions</h3>
+          <a href="#">Discord server link</a>
+        </div>
+      </div>
     </section>
 
     <!-- ============================= HOST A FLIGHT ============================= -->
@@ -150,6 +164,24 @@
           </select>
         </div>
 
+        <div class="field-group">
+          <label for="host-flight-type">Flight type</label>
+          <select id="host-flight-type" required>
+            <option value="" disabled selected>Select one</option>
+            <option value="Normal">Normal</option>
+            <option value="Private">Private</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="host-emergency">Is this an emergency flight?</label>
+          <select id="host-emergency" required>
+            <option value="" disabled selected>Select one</option>
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </div>
+
         <p class="form-note">For the field below, generate the timestamp at <a href="https://sesh.fyi/timestamp/" target="_blank" rel="noopener">sesh.fyi/timestamp</a> — pick the "Day, Month Day, Year at Time" option (the top one) and paste the result here. Check-in close, boarding, and arrival times are calculated automatically from this.</p>
 
         <div class="field-group">
@@ -168,6 +200,14 @@
           <label for="host-arrival-airport">Arrival airport</label>
           <select id="host-arrival-airport" required>
             <option value="" disabled selected>Select departure first</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="host-aircraft">Aircraft</label>
+          <p class="field-hint">Options are limited by departure airport and flight type — pick departure and flight type first.</p>
+          <select id="host-aircraft" required>
+            <option value="" disabled selected>Select departure and flight type first</option>
           </select>
         </div>
 

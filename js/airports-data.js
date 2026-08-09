@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Glideways Staff Portal — airports, routes, and languages
+// Glideways Staff Portal — airports, routes, and aircraft
 // ---------------------------------------------------------------------------
 
 // Every airport served, in the fixed order used throughout the portal.
@@ -8,11 +8,8 @@ const GLIDEWAYS_AIRPORTS = [
 ];
 
 // Route/flight-code lookup: GWY_ROUTES[departure][arrival] = route code.
-// This mirrors the fixed table you provided (prefix digit per origin,
-// suffix per destination in alphabetical order, origin skipped). It's not
-// currently inserted into the Discord message (see note in the chat reply),
-// but it's computed and stored on every flight submission in case you want
-// to surface it later — e.g. as a "Route" line in the embed.
+// Computed and stored on every flight submission for reference, even
+// though it's not currently in either Discord message.
 const GWY_ROUTES = {
   EDDL: { EGPH: "GWY101", EKSN: "GWY102", KCOD: "GWY103", KLGB: "GWY104", LFPG: "GWY105", LTBS: "GWY106", TNCM: "GWY107", WSSS: "GWY108" },
   EGPH: { EDDL: "GWY201", EKSN: "GWY202", KCOD: "GWY203", KLGB: "GWY204", LFPG: "GWY205", LTBS: "GWY206", TNCM: "GWY207", WSSS: "GWY208" },
@@ -24,3 +21,38 @@ const GWY_ROUTES = {
   TNCM: { EDDL: "GWY801", EGPH: "GWY802", EKSN: "GWY803", KCOD: "GWY804", KLGB: "GWY805", LFPG: "GWY806", LTBS: "GWY807", WSSS: "GWY808" },
   WSSS: { EDDL: "GWY901", EGPH: "GWY902", EKSN: "GWY903", KCOD: "GWY904", KLGB: "GWY905", LFPG: "GWY906", LTBS: "GWY907", TNCM: "GWY908" }
 };
+
+// ---------------------------------------------------------------------------
+// Aircraft: named airframe -> type. Staff pick a name (e.g. "Tundra"); the
+// type is looked up from this map.
+// ---------------------------------------------------------------------------
+const AIRCRAFT_TYPES = {
+  "Tundra": "A321-NEO",
+  "Executive": "A321-NEO",
+  "Malava": "A220-100",
+  "Aurora": "A220-100",
+  "Rora": "A220-100",
+  "Enzo": "A350-900",
+  "Spring": "ATR42-600"
+};
+
+// ---------------------------------------------------------------------------
+// Aircraft eligibility rules:
+//   - Sindal (EKSN) only operates the ATR42-600 ("Spring") — and this
+//     overrides everything else: private flights simply cannot be hosted
+//     from Sindal at all, since private requires the A321-NEO.
+//   - Private flights can only use the A321-NEO "Executive" specifically
+//     (not "Tundra").
+// ---------------------------------------------------------------------------
+function eligibleAircraftNames(departureAirport, flightType) {
+  if (departureAirport === "EKSN") return ["Spring"]; // Sindal: ATR42-600 only
+  if (flightType === "Private") return ["Executive"]; // Private: A321-NEO "Executive" only
+  return Object.keys(AIRCRAFT_TYPES);
+}
+
+// True if this departure/flight-type combination is simply not allowed
+// (rather than just narrowing the aircraft choices) — right now that's
+// only private flights departing Sindal.
+function isDepartureFlightTypeBlocked(departureAirport, flightType) {
+  return departureAirport === "EKSN" && flightType === "Private";
+}

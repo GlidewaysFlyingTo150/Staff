@@ -23,11 +23,11 @@ const hostErrorText = document.getElementById("host-form-error");
 const hostSubmitBtn = document.getElementById("host-submit-btn");
 const hostResult = document.getElementById("host-result");
 
-const MIN_LEAD_DAYS = 7;
+const MIN_LEAD_DAYS = 1;
 const MIN_FLIGHT_NUMBER = 1000;
 const MAX_FLIGHT_NUMBER = 9999;
 const MAX_NUMBER_ATTEMPTS = 12;
-const DETAILS_DELAY_DAYS = 0; // sent this many days BEFORE check-in opens
+const DETAILS_DELAY_DAYS = 2; // sent this many days BEFORE check-in opens
 
 // Formula for everything downstream of check-in opening — in minutes.
 const CHECKIN_CLOSE_OFFSET_MIN = 30;   // 30 min after check-in opens

@@ -16,6 +16,10 @@
 //   3. Mark that flight's detailsMessageSent as true so it's never sent
 //      twice.
 //
+// This is a PUBLIC-facing message: unlike the "New Flight" staff message,
+// it only ever mentions the flight type when it's Private — "Normal" and
+// "Emergency" are staff-only info and never appear here.
+//
 // Required environment variables (set as GitHub secrets — see README):
 //   FIREBASE_SERVICE_ACCOUNT      full JSON content of a Firebase service
 //                                   account key, as a single-line string
@@ -23,6 +27,8 @@
 // ---------------------------------------------------------------------------
 
 const admin = require("firebase-admin");
+
+const HUB_LINK = "https://www.roblox.com/share?code=723d546eee6bd14eab475c55febc3753&type=ExperienceDetails&stamp=1786233553972";
 
 function requireEnv(name) {
   const value = process.env[name];
@@ -88,6 +94,11 @@ function buildDetailsMessage(f, primaryDiscordUserId, secondaryDiscordUserId) {
   const secondaryMention = f.secondaryHost ? mentionFor(f.secondaryHost, secondaryDiscordUserId) : null;
   const hostLine = secondaryMention ? `${primaryMention} and ${secondaryMention}` : primaryMention;
 
+  // Public-facing: only ever shows "Private" — never "Normal" or
+  // "Emergency", those are staff-only.
+  const privateTag = f.flightType === "Private" ? `\n-# Private Flight` : ``;
+  const aircraftLine = f.aircraft ? `${f.aircraft} (${f.aircraftType || ""})`.trim() : null;
+
   const lines = [];
   if (primaryDiscordUserId) {
     lines.push(`<@${primaryDiscordUserId}>`, ``);
@@ -95,17 +106,18 @@ function buildDetailsMessage(f, primaryDiscordUserId, secondaryDiscordUserId) {
   lines.push(
     `**🌿| Glideways Flight ${f.flightNumber} ${f.departureAirport} -> ${f.arrivalAirport}**`,
     `-# *"Making our skies greener"*`,
-    `-#@everyone`,
+    `-#@everyone${privateTag}`,
     ``,
     `Flight ${f.flightNumber} will be departing from ${f.departureAirport} and arriving at ${f.arrivalAirport}. The flight is hosted by ${hostLine}. We can't wait to see you there!`,
     ``,
     `**Flight Information**`,
+    ...(aircraftLine ? [`*Aircraft:* ***${aircraftLine}***`] : []),
     `*Check-in Open:* ***${f.checkInOpen}***`,
     `*Check In Close:* ***${f.checkInClose}***`,
     `*Boarding Opens:* ***${f.boardingOpen}***`,
     `*Boarding Closes/Pushback:* ***${f.boardingClose}***`,
     `*Estimated Arrival Time:* ***${f.arrivalTime}***`,
-    `***We recommend you join via our [Hub](https://www.roblox.com/share?code=723d546eee6bd14eab475c55febc3753&type=ExperienceDetails&stamp=1786233553972) 10 minutes prior to check-in***`
+    `***We recommend you join via our [Hub](${HUB_LINK}) 10 minutes prior to check-in***`
   );
   return lines.join("\n");
 }

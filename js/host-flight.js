@@ -23,7 +23,7 @@ const hostErrorText = document.getElementById("host-form-error");
 const hostSubmitBtn = document.getElementById("host-submit-btn");
 const hostResult = document.getElementById("host-result");
 
-const MIN_LEAD_DAYS = 1;
+const MIN_LEAD_DAYS = 7;
 const MIN_FLIGHT_NUMBER = 1000;
 const MAX_FLIGHT_NUMBER = 9999;
 const MAX_NUMBER_ATTEMPTS = 12;
@@ -238,7 +238,6 @@ if (hostForm) {
     const flightDateStr = document.getElementById("host-flight-date").value;
     const primaryHost = document.getElementById("host-primary").value.trim();
     const secondaryHost = document.getElementById("host-secondary").value.trim();
-    const staffing = document.getElementById("host-staffing").value;
     const flightType = hostFlightTypeSelect.value;
     const isEmergency = document.getElementById("host-emergency").value === "yes";
     const checkInOpenRaw = document.getElementById("host-checkin-open").value.trim();
@@ -250,7 +249,7 @@ if (hostForm) {
     // ---- Client-side validation (fast feedback; Firestore rules are the
     // real authority and will reject anything that slips past this) ----
 
-    if (!flightDateStr || !primaryHost || !staffing || !flightType ||
+    if (!flightDateStr || !primaryHost || !flightType ||
         !document.getElementById("host-emergency").value || !checkInOpenRaw ||
         !departureAirport || !arrivalAirport || !aircraft || !accessCode) {
       hostErrorText.textContent = "Please fill out every field before submitting.";
@@ -312,7 +311,6 @@ if (hostForm) {
         flightDate: firebase.firestore.Timestamp.fromDate(flightDate),
         primaryHost,
         secondaryHost: secondaryHost || null,
-        staffingConfirmed: staffing,
         flightType,
         isEmergency,
         aircraft,

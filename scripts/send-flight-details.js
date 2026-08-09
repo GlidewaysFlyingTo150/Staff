@@ -100,9 +100,6 @@ function buildDetailsMessage(f, primaryDiscordUserId, secondaryDiscordUserId) {
   const aircraftLine = f.aircraft ? `${f.aircraft} (${f.aircraftType || ""})`.trim() : null;
 
   const lines = [];
-  if (primaryDiscordUserId) {
-    lines.push(`<@${primaryDiscordUserId}>`, ``);
-  }
   lines.push(
     `**🌿| Glideways Flight ${f.flightNumber} ${f.departureAirport} -> ${f.arrivalAirport}**`,
     `-# *"Making our skies greener"*`,
@@ -117,7 +114,8 @@ function buildDetailsMessage(f, primaryDiscordUserId, secondaryDiscordUserId) {
     `*Boarding Opens:* ***${f.boardingOpen}***`,
     `*Boarding Closes/Pushback:* ***${f.boardingClose}***`,
     `*Estimated Arrival Time:* ***${f.arrivalTime}***`,
-    `***We recommend you join via our [Hub](${HUB_LINK}) 10 minutes prior to check-in***`
+    ``,
+    `***We recommend you join via our [Hub](${HUB_LINK}) 10 minutes prior to check-in.***`
   );
   return lines.join("\n");
 }

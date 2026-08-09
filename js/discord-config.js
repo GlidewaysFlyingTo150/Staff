@@ -2,4 +2,4 @@
 // Glideways Staff Portal — Discord webhook config
 // ---------------------------------------------------------------------------
 
-const NEW_FLIGHT_WEBHOOK_URL = "https://discord.com/api/webhooks/1348260409689374780/rqu5nQAA0RGIDv5pRSbQn-G4lS_KenkNYDxvphHLHWwiquh7ts9r3l6AAwGqOLqCSlm3";
+const NEW_FLIGHT_WEBHOOK_URL = "https://discord.com/api/webhooks/1536066997450973304/E1lvQnDm5pMz1VNLhTXORa3lRWYLVnjDhSV6ZAhKACfcOz_VGZCoNShSlWGLMNdy8MiM";

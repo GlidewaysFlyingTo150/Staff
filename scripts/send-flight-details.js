@@ -101,7 +101,7 @@ function buildDetailsMessage(f, primaryDiscordUserId, secondaryDiscordUserId) {
 
   const lines = [];
   lines.push(
-    `**🌿| Glideways ${privateTag} Flight ${f.flightNumber} ${f.departureAirport} -> ${f.arrivalAirport}**`,
+    `**🌿| Glideways ${f.privateTag} Flight ${f.flightNumber} ${f.departureAirport} -> ${f.arrivalAirport}**`,
     `-# *"Making our skies greener"*`,
     `-# @everyone`,
     ``,

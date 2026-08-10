@@ -30,10 +30,10 @@ const MAX_NUMBER_ATTEMPTS = 12;
 const DETAILS_DELAY_DAYS = 2; // sent this many days BEFORE check-in opens
 
 // Formula for everything downstream of check-in opening — in minutes.
-const CHECKIN_CLOSE_OFFSET_MIN = 30;   // 30 min after check-in opens
-const BOARDING_OPEN_OFFSET_MIN = 25;   // 25 min after check-in closes
-const BOARDING_CLOSE_OFFSET_MIN = 45;  // 45 min after boarding opens
-const ARRIVAL_OFFSET_MIN = 90;         // 1.5 hrs after boarding closes/pushback
+const CHECKIN_CLOSE_OFFSET_MIN = 15;   // 30 min after check-in opens
+const BOARDING_OPEN_OFFSET_MIN = 10;   // 25 min after check-in closes
+const BOARDING_CLOSE_OFFSET_MIN = 20;  // 45 min after boarding opens
+const ARRIVAL_OFFSET_MIN = 70;         // 1.5 hrs after boarding closes/pushback
 
 // ---- Populate airport + aircraft dropdowns ---------------------------------
 

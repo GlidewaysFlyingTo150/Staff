@@ -8,6 +8,12 @@
 // since this only ever runs in your own GitHub Actions environment, not in
 // anyone's browser.
 //
+// This now lives in the SAME repo as the staff portal site, which is fine
+// because that repo is PRIVATE — hosting moved from GitHub Pages (which
+// requires a public repo on the free plan) to Netlify, which can deploy a
+// static site from a private repo. Actions logs on a private repo are
+// only visible to people with access to the repo, not the public.
+//
 // What it does, each run:
 //   1. Find flights where detailsSendAt <= now and detailsMessageSent is
 //      still false.
@@ -20,15 +26,30 @@
 // it only ever mentions the flight type when it's Private — "Normal" and
 // "Emergency" are staff-only info and never appear here.
 //
-// Required environment variables (set as GitHub secrets — see README):
-//   FIREBASE_SERVICE_ACCOUNT      full JSON content of a Firebase service
-//                                   account key, as a single-line string
-//   FLIGHT_DETAILS_WEBHOOK_URL     the Discord webhook for this message
+// Setup:
+//   - FLIGHT_DETAILS_WEBHOOK_URL is hardcoded below (safe here since the
+//     repo is private — see the note by that constant).
+//   - FIREBASE_SERVICE_ACCOUNT stays a GitHub secret regardless of repo
+//     visibility (full JSON content of a Firebase service account key,
+//     as a single-line string) — it's a much more sensitive credential
+//     than a webhook, so it stays extra-compartmentalized.
 // ---------------------------------------------------------------------------
 
 const admin = require("firebase-admin");
 
 const HUB_LINK = "https://www.roblox.com/share?code=723d546eee6bd14eab475c55febc3753&type=ExperienceDetails&stamp=1786233553972";
+
+// ---------------------------------------------------------------------------
+// Flight-details webhook — hardcoded directly, since this script now lives
+// in a PRIVATE repo. Only safe because of that; if this repo is ever made
+// public again, move this back to a secret (see git history for that
+// version) before doing so.
+//
+// The Firebase service account, below, stays as an env var / GitHub secret
+// regardless of repo visibility — it grants full database access, not
+// just posting to one channel, so it stays extra-compartmentalized.
+// ---------------------------------------------------------------------------
+const FLIGHT_DETAILS_WEBHOOK_URL = "REPLACE_WITH_YOUR_FLIGHT_DETAILS_WEBHOOK_URL";
 
 function requireEnv(name) {
   const value = process.env[name];
@@ -39,32 +60,19 @@ function requireEnv(name) {
   return value;
 }
 
-// Cleans up common copy/paste mistakes: surrounding quotes, and leading/
-// trailing whitespace or line breaks — any of which makes new URL() throw
-// "Invalid URL" even though the secret "looks" set.
-function cleanWebhookUrl(raw) {
-  let cleaned = raw.trim();
-  if (
-    (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
-    (cleaned.startsWith("'") && cleaned.endsWith("'"))
-  ) {
-    cleaned = cleaned.slice(1, -1).trim();
-  }
-  return cleaned;
-}
-
 const serviceAccountJson = requireEnv("FIREBASE_SERVICE_ACCOUNT");
-const webhookUrl = cleanWebhookUrl(requireEnv("FLIGHT_DETAILS_WEBHOOK_URL"));
+const webhookUrl = FLIGHT_DETAILS_WEBHOOK_URL;
+
+if (!webhookUrl || webhookUrl.startsWith("REPLACE_")) {
+  console.error("Set FLIGHT_DETAILS_WEBHOOK_URL near the top of this file.");
+  process.exit(1);
+}
 
 try {
   // eslint-disable-next-line no-new
   new URL(webhookUrl);
 } catch {
-  console.error(
-    "FLIGHT_DETAILS_WEBHOOK_URL doesn't look like a valid URL even after " +
-    "cleanup. Check the GitHub secret for stray characters, and make sure " +
-    "it's the full URL starting with https://discord.com/api/webhooks/..."
-  );
+  console.error("FLIGHT_DETAILS_WEBHOOK_URL doesn't look like a valid URL — check for typos.");
   process.exit(1);
 }
 
@@ -100,7 +108,10 @@ function buildDetailsMessage(f, primaryDiscordUserId, secondaryDiscordUserId) {
   const aircraftLine = f.aircraft ? `${f.aircraft} (${f.aircraftType || ""})`.trim() : null;
 
   const lines = [];
-  lines.push(
+  if (primaryDiscordUserId) {
+    lines.push(`<@${primaryDiscordUserId}>`, ``);
+  }
+ lines.push(
     `**🌿| Glideways ${f.privateTag} Flight ${f.flightNumber} ${f.departureAirport} -> ${f.arrivalAirport}**`,
     `-# *"Making our skies greener"*`,
     `-# @everyone`,
@@ -121,11 +132,23 @@ function buildDetailsMessage(f, primaryDiscordUserId, secondaryDiscordUserId) {
 }
 
 async function postToDiscord(content) {
-  const res = await fetch(webhookUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ content })
-  });
+  let res;
+  try {
+    res = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content })
+    });
+  } catch (networkErr) {
+    // Deliberately NOT rethrowing networkErr as-is: some runtime fetch
+    // failures embed the request URL in their own error message. If the
+    // secret was ever cleaned/trimmed to a form that differs even
+    // slightly from the exact value GitHub has on file, GitHub's log
+    // masking (which matches the literal registered string) can fail to
+    // redact that embedded copy — printing the real webhook URL in plain
+    // text in the log. Always throw a message that can't contain it.
+    throw new Error("Network error while posting to the flight-details webhook — check FLIGHT_DETAILS_WEBHOOK_URL.");
+  }
   if (!res.ok) {
     const body = await res.text().catch(() => "");
     throw new Error(`Discord webhook returned ${res.status}: ${body}`);

@@ -2,10 +2,9 @@ name: Send scheduled flight details
 
 on:
   schedule:
-    # Every 15 minutes. GitHub may delay this slightly under load — this
-    # isn't a to-the-second guarantee, just "within roughly 15-30 minutes
-    # of the 2-day mark."
-    - cron: "*/10 * * * *"
+    # Every 15 minutes — private repos have a limited free Actions-minutes
+    # budget (unlike public repos), so this stays comfortably inside it.
+    - cron: "*/15 * * * *"
   workflow_dispatch: {} # lets you trigger it manually from the Actions tab
 
 jobs:
@@ -26,5 +25,4 @@ jobs:
       - name: Send due flight-details announcements
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          FLIGHT_DETAILS_WEBHOOK_URL: ${{ secrets.FLIGHT_DETAILS_WEBHOOK_URL }}
         run: node scripts/send-flight-details.js

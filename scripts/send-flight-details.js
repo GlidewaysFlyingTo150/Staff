@@ -37,7 +37,7 @@
 
 const admin = require("firebase-admin");
 
-const HUB_LINK = "https://www.roblox.com/share?code=723d546eee6bd14eab475c55febc3753&type=ExperienceDetails&stamp=1786233553972";
+const HUB_LINK = "https://discord.com/api/webhooks/1546113202570666114/fg1HSzjMeOy1OXzyX598JmAohhal_Lv1-AmuoxC8onqEP0tqviFjzp-d0css293mfHOz";
 
 // ---------------------------------------------------------------------------
 // Flight-details webhook — hardcoded directly, since this script now lives

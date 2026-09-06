@@ -42,14 +42,13 @@ const HUB_LINK = "https://www.roblox.com/share?code=723d546eee6bd14eab475c55febc
 // ---------------------------------------------------------------------------
 // Flight-details webhook — hardcoded directly, since this script now lives
 // in a PRIVATE repo. Only safe because of that; if this repo is ever made
-// public again, move this back to a secret (see git history for that
-// version) before doing so.
+// public again, move this back to a secret before doing so.
 //
-// The Firebase service account, below, stays as an env var / GitHub secret
-// regardless of repo visibility — it grants full database access, not
-// just posting to one channel, so it stays extra-compartmentalized.
+// PASTE YOUR NEW (rotated) WEBHOOK HERE — the previous one was shared in
+// chat and should be treated as compromised; delete it in Discord and
+// generate a fresh one, then put that new URL below.
 // ---------------------------------------------------------------------------
-const FLIGHT_DETAILS_WEBHOOK_URL = "https://discord.com/api/webhooks/1546113202570666114/fg1HSzjMeOy1OXzyX598JmAohhal_Lv1-AmuoxC8onqEP0tqviFjzp-d0css293mfHOz";
+const FLIGHT_DETAILS_WEBHOOK_URL = "REPLACE_WITH_YOUR_NEW_FLIGHT_DETAILS_WEBHOOK_URL";
 
 function requireEnv(name) {
   const value = process.env[name];
@@ -103,16 +102,18 @@ function buildDetailsMessage(f, primaryDiscordUserId, secondaryDiscordUserId) {
   const hostLine = secondaryMention ? `${primaryMention} and ${secondaryMention}` : primaryMention;
 
   // Public-facing: only ever shows "Private" — never "Normal" or
-  // "Emergency", those are staff-only.
-  const privateTag = f.flightType === "Private" ? `\n-# Private Flight` : ``;
+  // "Emergency", those are staff-only. This is a plain local value, NOT
+  // a field on f (Firestore data has no "privateTag" property) — use
+  // this variable directly, never f.privateTag.
+  const privateHeaderTag = f.flightType === "Private" ? "[Private] " : "";
   const aircraftLine = f.aircraft ? `${f.aircraft} (${f.aircraftType || ""})`.trim() : null;
 
   const lines = [];
   if (primaryDiscordUserId) {
     lines.push(`<@${primaryDiscordUserId}>`, ``);
   }
- lines.push(
-    `**🌿| Glideways ${f.privateTag} Flight ${f.flightNumber} ${f.departureAirport} -> ${f.arrivalAirport}**`,
+  lines.push(
+    `**🌿| Glideways ${privateHeaderTag}Flight ${f.flightNumber} ${f.departureAirport} -> ${f.arrivalAirport}**`,
     `-# *"Making our skies greener"*`,
     `-# @everyone`,
     ``,
@@ -141,12 +142,9 @@ async function postToDiscord(content) {
     });
   } catch (networkErr) {
     // Deliberately NOT rethrowing networkErr as-is: some runtime fetch
-    // failures embed the request URL in their own error message. If the
-    // secret was ever cleaned/trimmed to a form that differs even
-    // slightly from the exact value GitHub has on file, GitHub's log
-    // masking (which matches the literal registered string) can fail to
-    // redact that embedded copy — printing the real webhook URL in plain
-    // text in the log. Always throw a message that can't contain it.
+    // failures embed the request URL in their own error message, which
+    // could end up printed in a log. Always throw a message that can't
+    // contain the webhook URL.
     throw new Error("Network error while posting to the flight-details webhook — check FLIGHT_DETAILS_WEBHOOK_URL.");
   }
   if (!res.ok) {

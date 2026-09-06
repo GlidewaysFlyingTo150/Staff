@@ -49,7 +49,7 @@ const HUB_LINK = "https://www.roblox.com/share?code=723d546eee6bd14eab475c55febc
 // regardless of repo visibility — it grants full database access, not
 // just posting to one channel, so it stays extra-compartmentalized.
 // ---------------------------------------------------------------------------
-const FLIGHT_DETAILS_WEBHOOK_URL = "REPLACE_WITH_YOUR_FLIGHT_DETAILS_WEBHOOK_URL";
+const FLIGHT_DETAILS_WEBHOOK_URL = "https://discord.com/api/webhooks/1546113202570666114/fg1HSzjMeOy1OXzyX598JmAohhal_Lv1-AmuoxC8onqEP0tqviFjzp-d0css293mfHOz";
 
 function requireEnv(name) {
   const value = process.env[name];

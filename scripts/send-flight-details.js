@@ -48,7 +48,7 @@ const HUB_LINK = "https://discord.com/api/webhooks/1546113202570666114/fg1HSzjMe
 // chat and should be treated as compromised; delete it in Discord and
 // generate a fresh one, then put that new URL below.
 // ---------------------------------------------------------------------------
-const FLIGHT_DETAILS_WEBHOOK_URL = "REPLACE_WITH_YOUR_NEW_FLIGHT_DETAILS_WEBHOOK_URL";
+const FLIGHT_DETAILS_WEBHOOK_URL = "https://discord.com/api/webhooks/1546197320880619631/C417Wa2kI8gXSWiKCHs3jPzCQ0s1u7ZcCshb8scWblqH2a8Mhr-r4dpuCNiWR19zxLdy";
 
 function requireEnv(name) {
   const value = process.env[name];

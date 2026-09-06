@@ -3,15 +3,15 @@
 //
 // Relies on globals from portal.js (currentUsername, db) and
 // airports-data.js (GLIDEWAYS_AIRPORTS, GWY_ROUTES, AIRCRAFT_TYPES,
-// eligibleAircraftNames) and discord-config.js (NEW_FLIGHT_WEBHOOK_URL),
-// all loaded before this file.
+// eligibleAircraftNames, isDepartureFlightTypeBlocked) and
+// discord-config.js (NEW_FLIGHT_WEBHOOK_URL), all loaded before this file.
 //
 // Only the "New Flight" staffing-call message is sent from here, right
 // after submission. The detailed flight-info message goes out 2 days
-// before check-in opens (not 2 days after submission) — a browser tab can't reliably wait 2 days, so that one is sent
-// by a scheduled GitHub Action instead (see scripts/send-flight-details.js
-// and the README). This file just marks each flight with when that
-// message is due.
+// before check-in opens (not 2 days after submission) — a browser tab
+// can't reliably wait, so that one is sent by a scheduled GitHub Action
+// instead (see scripts/send-flight-details.js and the README). This file
+// just marks each flight with when that message is due.
 // ---------------------------------------------------------------------------
 
 const hostForm = document.getElementById("host-flight-form");
@@ -30,10 +30,10 @@ const MAX_NUMBER_ATTEMPTS = 12;
 const DETAILS_DELAY_DAYS = 2; // sent this many days BEFORE check-in opens
 
 // Formula for everything downstream of check-in opening — in minutes.
-const CHECKIN_CLOSE_OFFSET_MIN = 15;   // 30 min after check-in opens
-const BOARDING_OPEN_OFFSET_MIN = 10;   // 25 min after check-in closes
-const BOARDING_CLOSE_OFFSET_MIN = 20;  // 45 min after boarding opens
-const ARRIVAL_OFFSET_MIN = 70;         // 1.5 hrs after boarding closes/pushback
+const CHECKIN_CLOSE_OFFSET_MIN = 30;   // 30 min after check-in opens
+const BOARDING_OPEN_OFFSET_MIN = 25;   // 25 min after check-in closes
+const BOARDING_CLOSE_OFFSET_MIN = 45;  // 45 min after boarding opens
+const ARRIVAL_OFFSET_MIN = 90;         // 1.5 hrs after boarding closes/pushback
 
 // ---- Populate airport + aircraft dropdowns ---------------------------------
 
@@ -59,6 +59,10 @@ if (hostDepartureSelect && typeof GLIDEWAYS_AIRPORTS !== "undefined") {
   });
 }
 
+if (hostFlightTypeSelect) {
+  hostFlightTypeSelect.addEventListener("change", refreshAircraftOptions);
+}
+
 // Sindal only operates the ATR42-600, so private flights simply can't
 // depart from there — disable that option in the dropdown rather than
 // letting someone pick an impossible combination.
@@ -68,16 +72,12 @@ function updatePrivateOptionAvailability() {
   const privateOption = Array.from(hostFlightTypeSelect.options).find((o) => o.value === "Private");
   if (!privateOption) return;
 
-  const blocked = departure === "EKSN";
+  const blocked = departure === "Sindal";
   privateOption.disabled = blocked;
   if (blocked && hostFlightTypeSelect.value === "Private") {
     hostFlightTypeSelect.value = "";
-    hostErrorText.textContent = "Private flights can't depart from Sindal (EKSN only operates the ATR42-600) — flight type has been reset.";
+    hostErrorText.textContent = "Private flights can't depart from Sindal (Sindal only operates the ATR42-600) — flight type has been reset.";
   }
-}
-
-if (hostFlightTypeSelect) {
-  hostFlightTypeSelect.addEventListener("change", refreshAircraftOptions);
 }
 
 function refreshAircraftOptions() {
@@ -262,12 +262,12 @@ if (hostForm) {
     }
 
     if (isDepartureFlightTypeBlocked(departureAirport, flightType)) {
-      hostErrorText.textContent = "Private flights can't depart from Sindal (EKSN only operates the ATR42-600).";
+      hostErrorText.textContent = "Private flights can't depart from Sindal (Sindal only operates the ATR42-600).";
       return;
     }
 
-    // Re-check aircraft eligibility server-side-equivalent, in case the
-    // dropdown got out of sync (e.g. flight type changed after picking).
+    // Re-check aircraft eligibility, in case the dropdown got out of sync
+    // (e.g. flight type changed after picking an aircraft).
     const validAircraft = eligibleAircraftNames(departureAirport, flightType);
     if (!validAircraft.includes(aircraft)) {
       hostErrorText.textContent = `That aircraft isn't valid for this departure/flight type. Valid options: ${validAircraft.join(", ")}.`;

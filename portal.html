@@ -23,10 +23,11 @@
     <div>
       <p class="gate-label">Staff directory</p>
       <ul class="tab-nav" role="tablist">
-        <li><button class="tab-btn active" data-tab="home" role="tab" aria-selected="true">Home <span class="gate-code">MAIN</span></button></li>
+        <li><button class="tab-btn active" data-tab="home" role="tab" aria-selected="true">Home <span class="gate-code">HOME</span></button></li>
         <li><button class="tab-btn" data-tab="documents" role="tab" aria-selected="false">Documents <span class="gate-code">GATE ALPHA</span></button></li>
         <li><button class="tab-btn" data-tab="updates" role="tab" aria-selected="false">Updates <span class="gate-code">GATE BRAVO</span><span></span></button></li>
-        <li id="host-nav-item" hidden><button class="tab-btn" data-tab="host" role="tab" aria-selected="false">Host a Flight <span class="gate-code">GATE CHARLIE</span></button></li>
+        <li><button class="tab-btn" data-tab="loa" role="tab" aria-selected="false">Leave of Absence <span class="gate-code">GATE CHARLIE</span></button></li>
+        <li id="host-nav-item" hidden><button class="tab-btn" data-tab="host" role="tab" aria-selected="false">Host a Flight <span class="gate-code">GATE DELTA</span></button></li>
       </ul>
     </div>
 
@@ -69,7 +70,15 @@
       <div class="update-list" id="home-updates-preview">
         <p class="empty-state">Loading updates…</p>
       </div>
+      
+      <h2 class="home-subheading">Your Leave of Absence</h2>
+      <div id="loa-your-status"><p class="empty-state">Loading…</p></div>
 
+      <div id="loa-review-section" hidden>
+      <h2 class="home-subheading">Pending LOA Requests</h2>
+      <div id="loa-review-list"></div>
+      </div>
+      
       <h2 class="home-subheading">Quick links</h2>
       <ul class="quick-links" id="quick-links">
         <li><a href="#">Discord server</a></li>
@@ -101,6 +110,35 @@
       </div>
     </section>
 
+<!-- ============================== LOA  =============================== -->
+   <section class="tab-panel" id="panel-loa" role="tabpanel">
+  <h1 class="panel-title">Leave of Absence</h1>
+  <p class="panel-sub">Request time off. Select every department this applies to.</p>
+
+  <form id="loa-form" class="host-form">
+    <div class="field-group">
+      <label>Departments</label>
+      <div class="checkbox-group" id="loa-departments"></div>
+    </div>
+    <div class="field-group">
+      <label for="loa-start-date">Start date</label>
+      <input type="date" id="loa-start-date" required>
+    </div>
+    <div class="field-group">
+      <label for="loa-end-date">End date</label>
+      <input type="date" id="loa-end-date" required>
+    </div>
+    <div class="field-group">
+      <label for="loa-reason">Reason</label>
+      <textarea id="loa-reason" rows="4" required></textarea>
+    </div>
+    <p class="error-text" id="loa-form-error" role="alert"></p>
+    <button type="submit" class="submit-btn" id="loa-submit-btn">Submit request</button>
+  </form>
+
+  <div class="host-result" id="loa-result" hidden></div>
+</section>
+    
     <!-- ============================= HOST A FLIGHT ============================= -->
     <section class="tab-panel" id="panel-host" role="tabpanel">
       <h1 class="panel-title">Host a Flight</h1>
@@ -225,5 +263,7 @@
 <script src="js/airports-data.js"></script>
 <script src="js/portal.js"></script>
 <script src="js/host-flight.js"></script>
+<script src="js/departments-data.js"></script>
+<script src="js/loa.js"></script>
 </body>
 </html>

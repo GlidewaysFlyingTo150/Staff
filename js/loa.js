@@ -172,7 +172,7 @@ if (loaReviewList) {
         });
       } catch (err) {
         console.error("Approve failed:", err);
-        alert("Couldn't approve — check your canReviewLOA permission.");
+        alert("Couldn't approve — check that one of your roles has LOA-review permission.");
         approveBtn.disabled = false;
       }
       return;
@@ -192,7 +192,7 @@ if (loaReviewList) {
         });
       } catch (err) {
         console.error("Deny failed:", err);
-        alert("Couldn't deny — check your canReviewLOA permission.");
+        alert("Couldn't deny — check that one of your roles has LOA-review permission.");
         denyBtn.disabled = false;
       }
     }
@@ -206,14 +206,18 @@ auth.onAuthStateChanged(async (user) => {
 
   loadYourLoaStatus();
 
-  // Independent check of canReviewLOA, so this feature doesn't depend on
-  // portal.js's role-loading code being edited correctly too.
+  // Independent check of LOA-review permission, so this feature doesn't
+  // depend on portal.js's role-loading code being edited correctly too.
+  // Permission comes from roleCanViewLOA() in js/roles-data.js — true if
+  // ANY role this person holds is flagged canViewLOA: true there, not
+  // from a flag on this specific person.
   try {
     const staffDoc = await db.collection("staff").doc(user.uid).get();
-    const canReviewLOA = staffDoc.exists && staffDoc.data().canReviewLOA === true;
+    const roles = staffDoc.exists ? staffDoc.data().roles : [];
+    const canReviewLOA = typeof roleCanViewLOA === "function" && roleCanViewLOA(roles);
     if (loaReviewSection) loaReviewSection.hidden = !canReviewLOA;
     if (canReviewLOA) loadReviewQueue();
   } catch (err) {
-    console.error("Couldn't check canReviewLOA:", err);
+    console.error("Couldn't check LOA-review permission:", err);
   }
 });

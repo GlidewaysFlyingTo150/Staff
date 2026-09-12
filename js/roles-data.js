@@ -19,35 +19,56 @@
 
 const GLIDEWAYS_ROLES = {
   "Human Resources": [
-    { name: "HR Trainee", level: 1, canViewLOA: false },
-    { name: "Vice President", level: 2, canViewLOA: false },
-    { name: "Managing Director", level: 3, canViewLOA: true }
+    { name: "Human Resources Intern", level: 1, canViewLOA: false },
+    { name: "Human Resources Member", level: 2, canViewLOA: false },
+    { name: "Human Resources Supervisor", level: 3, canViewLOA: false },
+    { name: "Human Resources Manager", level: 4, canViewLOA: true },
+    { name: "Managing Director", level: 5, canViewLOA: true },
+    { name: "Vice President", level: 6, canViewLOA: true }
   ],
   "Public Relations": [
-    { name: "PR Trainee", level: 1, canViewLOA: false },
-     { name: "Vice President", level: 2, canViewLOA: false },
-    { name: "Managing Director", level: 3, canViewLOA: true }
+    { name: "Public Relations Intern", level: 1, canViewLOA: false },
+    { name: "Public Relations Member", level: 2, canViewLOA: false },
+    { name: "Public Relations Supervisor", level: 3, canViewLOA: false },
+    { name: "Public Relations Manager", level: 4, canViewLOA: true },
+    { name: "Public Relations Managing Director", level: 5, canViewLOA: true },
+    { name: "Public Relations Vice President", level: 6, canViewLOA: true }
   ],
   "Networking": [
-    { name: "Networking Trainee", level: 1, canViewLOA: false },
-    { name: "Vice President", level: 2, canViewLOA: false },
-    { name: "Managing Director", level: 3, canViewLOA: true }
+    { name: "Networking Intern", level: 1, canViewLOA: false },
+    { name: "Networking Resources Member", level: 2, canViewLOA: false },
+    { name: "Networking Resources Supervisor", level: 3, canViewLOA: false },
+    { name: "Networking Resources Manager", level: 4, canViewLOA: true },
+    { name: "Networking Managing Director", level: 5, canViewLOA: true },
+    { name: "Networking Vice President", level: 6, canViewLOA: true }
   ],
   "Operations": [
-    { name: "Operations Trainee", level: 1, canViewLOA: false },
-    { name: "Vice President", level: 2, canViewLOA: false },
-    { name: "Managing Director", level: 3, canViewLOA: true }
+    { name: "Operations Intern", level: 1, canViewLOA: false },
+    { name: "Operations Resources Member", level: 2, canViewLOA: false },
+    { name: "Operations Supervisor", level: 3, canViewLOA: false },
+    { name: "Operations Manager", level: 4, canViewLOA: true },
+    { name: "Operations Managing Director", level: 5, canViewLOA: true },
+    { name: "Operations Vice President", level: 6, canViewLOA: true }
   ],
   "Technical Operations": [
-    { name: "TechOps Trainee", level: 1, canViewLOA: false },
-    { name: "Vice President", level: 2, canViewLOA: false },
-    { name: "Managing Director", level: 3, canViewLOA: true }
+    { name: "Technical Operations Intern", level: 1, canViewLOA: false },
+    { name: "Technical Operations Member", level: 2, canViewLOA: false },
+    { name: "Technical Operations Supervisor", level: 3, canViewLOA: false },
+    { name: "Technical Operations Manager", level: 4, canViewLOA: true },
+    { name: "Technical Operations Managing Director", level: 5, canViewLOA: true },
+    { name: "Technical Operations Vice President", level: 6, canViewLOA: true }
   ],
    "Corportate": [
     { name: "Executive Vice President", level: 1, canViewLOA: false },
     { name: "Executive Vice President", level: 2, canViewLOA: false },
-    { name: "President", level: 3, canViewLOA: true },
-    { name: "Supervisor", level: 4, canViewLOA: true }
+    { name: "Senior Vice President", level: 3, canViewLOA: false },
+    { name: "President", level: 4, canViewLOA: true },
+    { name: "Supervisor", level: 5, canViewLOA: true }
+  ],
+   "Internal Affairs": [
+    { name: "Internal Affairs Agent", level: 1, canViewLOA: false },
+    { name: "Deputy Internal Affairs Agent", level: 2, canViewLOA: true },
+    { name: "Lead Internal Affairs Agent", level: 3, canViewLOA: true },
   ]
 };
 

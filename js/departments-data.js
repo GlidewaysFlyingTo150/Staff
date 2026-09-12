@@ -9,4 +9,5 @@ const GLIDEWAYS_DEPARTMENTS = [
   "Operations",
   "Technical Operations",
   "Corporate"
+  "Internal Affairs"
 ];
